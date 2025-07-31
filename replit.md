@@ -2,26 +2,47 @@
 
 ## Overview
 
-This is a web-based car wash finder application that helps users locate nearby car wash services on an interactive map. The application uses React for the frontend, Leaflet for mapping functionality, and Bootstrap for styling. It features a map view with custom markers for car wash locations and a bottom sheet modal for displaying detailed information about selected locations.
+This project now includes both a web-based application and a React Native Expo mobile app for finding nearby car wash services in Ulaanbaatar, Mongolia. The web version uses React with Leaflet for mapping, while the mobile version uses React Native with native maps and bottom sheet components for optimal mobile experience.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes (July 31, 2025)
+
+- ✓ Created complete React Native Expo version of the car wash finder app
+- ✓ Implemented native maps using react-native-maps
+- ✓ Added @gorhom/bottom-sheet for smooth modal interactions
+- ✓ Configured gesture handling and animations with reanimated
+- ✓ Set up Expo development environment with QR code scanning
+- ✓ Maintained same features as web version: map markers, car type selection, image gallery
+
 ## System Architecture
 
-### Frontend Architecture
+### Web Application Architecture
 - **Framework**: React 18 (loaded via CDN)
 - **Build Process**: No build system - uses Babel standalone for JSX transformation in the browser
 - **Styling**: Bootstrap 5 + custom CSS for responsive design
 - **Component Structure**: Modular React components with global window object exports
 
+### Mobile Application Architecture (NEW)
+- **Framework**: React Native with Expo SDK 53
+- **Build Process**: Metro bundler with Babel preset for Expo
+- **Navigation**: Native map integration with react-native-maps
+- **UI Components**: @gorhom/bottom-sheet for modal interactions
+- **Animations**: react-native-reanimated for smooth gestures
+- **Development**: Expo Go app for instant testing via QR code
+
 ### Technology Stack
-- **UI Library**: React with functional components and hooks
-- **Mapping**: Leaflet.js for interactive maps and markers
-- **Styling**: Bootstrap 5.3 + Font Awesome icons + custom CSS
-- **Data Storage**: Static JavaScript objects (no database)
-- **Deployment**: Static files served directly from web server
+- **Web UI**: React with functional components and hooks
+- **Mobile UI**: React Native components with native performance
+- **Web Mapping**: Leaflet.js for interactive maps and markers
+- **Mobile Mapping**: react-native-maps for native map experience
+- **Web Styling**: Bootstrap 5.3 + Font Awesome icons + custom CSS
+- **Mobile Styling**: React Native StyleSheet with platform-specific optimizations
+- **Data Storage**: Static JavaScript objects (no database) - same data for both platforms
+- **Web Deployment**: Static files served directly from web server
+- **Mobile Deployment**: Expo build service for app store distribution
 
 ## Key Components
 
