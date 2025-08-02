@@ -93,7 +93,9 @@ export default function App() {
 
   const handleServiceTypeSelect = (serviceId) => {
     console.log('Service selected:', serviceId);
+    console.log('Previous service:', activeServiceType);
     setActiveServiceType(serviceId);
+    console.log('New service should be:', serviceId);
   };
 
   const handleWorkerSelect = (workerId) => {
@@ -155,6 +157,7 @@ export default function App() {
 
                   {/* Service types header */}
                   <Text style={styles.sectionTitle}>Угаалгын төрөл</Text>
+                  <Text style={styles.debugText}>Сонгосон: {activeServiceType}</Text>
                   
                   {/* Service types selection */}
                   <View style={styles.serviceTypeGrid}>
@@ -348,14 +351,15 @@ const styles = StyleSheet.create({
     borderColor: '#e9ecef',
   },
   activeServiceCard: {
-    backgroundColor: '#007bff',
-    borderColor: '#007bff',
-    transform: [{ scale: 1.02 }],
-    shadowColor: '#007bff',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+    backgroundColor: '#28a745',
+    borderColor: '#28a745',
+    borderWidth: 3,
+    transform: [{ scale: 1.05 }],
+    shadowColor: '#28a745',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 10,
   },
   serviceIcon: {
     fontSize: 24,
@@ -386,6 +390,12 @@ const styles = StyleSheet.create({
   activeServicePrice: {
     color: 'white',
     fontWeight: '800',
+  },
+  debugText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 10,
+    fontStyle: 'italic',
   },
   appointmentSection: {
     marginBottom: 20,
