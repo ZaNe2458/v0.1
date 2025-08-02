@@ -68,6 +68,15 @@ const serviceTypes = [
   }
 ];
 
+const carTypes = [
+  { id: 'sedan', name: 'Седан', icon: '🚗' },
+  { id: 'suv', name: 'Жийп', icon: '🚙' },
+  { id: 'truck', name: 'Ачааны', icon: '🚚' },
+  { id: 'van', name: 'Транзит', icon: '🚐' },
+  { id: 'motorcycle', name: 'Мотор', icon: '🏍️' },
+  { id: 'bus', name: 'Автобус', icon: '🚌' }
+];
+
 const workers = [
   { id: 1, name: 'Баяр', rating: 4.9, image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80' },
   { id: 2, name: 'Болд', rating: 4.8, image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80' },
@@ -78,6 +87,7 @@ const workers = [
 export default function App() {
   const [selectedCarWash, setSelectedCarWash] = useState(null);
   const [activeServiceType, setActiveServiceType] = useState('premium');
+  const [selectedCarType, setSelectedCarType] = useState('sedan');
   const [selectedWorker, setSelectedWorker] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -96,6 +106,11 @@ export default function App() {
     console.log('Previous service:', activeServiceType);
     setActiveServiceType(serviceId);
     console.log('New service should be:', serviceId);
+  };
+
+  const handleCarTypeSelect = (carTypeId) => {
+    console.log('Car type selected:', carTypeId);
+    setSelectedCarType(carTypeId);
   };
 
   const handleWorkerSelect = (workerId) => {
@@ -183,6 +198,29 @@ export default function App() {
                           styles.servicePrice,
                           activeServiceType === service.id && styles.activeServicePrice
                         ]}>{service.price}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+
+                  {/* Car type selection */}
+                  <Text style={styles.sectionTitle}>Машины төрөл</Text>
+                  <Text style={styles.debugText}>Сонгосон машин: {selectedCarType}</Text>
+                  
+                  <View style={styles.carTypeGrid}>
+                    {carTypes.map((carType) => (
+                      <TouchableOpacity
+                        key={carType.id}
+                        style={[
+                          styles.carTypeButton,
+                          selectedCarType === carType.id && styles.activeCarTypeButton,
+                        ]}
+                        onPress={() => handleCarTypeSelect(carType.id)}
+                      >
+                        <Text style={styles.carTypeIcon}>{carType.icon}</Text>
+                        <Text style={[
+                          styles.carTypeName,
+                          selectedCarType === carType.id && styles.activeCarTypeText
+                        ]}>{carType.name}</Text>
                       </TouchableOpacity>
                     ))}
                   </View>
@@ -396,6 +434,47 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 10,
     fontStyle: 'italic',
+  },
+  carTypeGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 20,
+  },
+  carTypeButton: {
+    flex: 1,
+    minWidth: '30%',
+    backgroundColor: '#f8f9fa',
+    borderRadius: 8,
+    padding: 10,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#e9ecef',
+  },
+  activeCarTypeButton: {
+    backgroundColor: '#ff6b35',
+    borderColor: '#ff6b35',
+    borderWidth: 3,
+    transform: [{ scale: 1.05 }],
+    shadowColor: '#ff6b35',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 8,
+  },
+  carTypeIcon: {
+    fontSize: 20,
+    marginBottom: 4,
+  },
+  carTypeName: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#333',
+    textAlign: 'center',
+  },
+  activeCarTypeText: {
+    color: 'white',
+    fontWeight: '700',
   },
   appointmentSection: {
     marginBottom: 20,
