@@ -44,29 +44,132 @@ const carWashLocations = [
   },
 ];
 
-const serviceTypes = [
-  { 
-    id: 'premium', 
-    name: 'Бүгэн угаалга', 
-    icon: '⭐', 
-    price: '45000₮',
-    description: 'Гадна талаар бүрэн угаах, доторх засах ухаантай'
-  },
-  { 
-    id: 'exterior', 
-    name: 'Гадна угаалга', 
-    icon: '🚗', 
-    price: '25000₮',
-    description: 'Машины гадна талбар бүрэн угаах'
-  },
-  { 
-    id: 'interior', 
-    name: 'Салон цэвэрлэгээ', 
-    icon: '🧽', 
-    price: '35000₮',
-    description: 'Доторх бүрэн цэвэрлэх, үнэрлэгээ'
-  }
-];
+const serviceTypesByCarType = {
+  sedan: [
+    { 
+      id: 'premium', 
+      name: 'Бүгэн угаалга', 
+      icon: '⭐', 
+      price: '45000₮',
+      description: 'Гадна талаар бүрэн угаах, доторх засах ухаантай'
+    },
+    { 
+      id: 'exterior', 
+      name: 'Гадна угаалга', 
+      icon: '🚗', 
+      price: '25000₮',
+      description: 'Машины гадна талбар бүрэн угаах'
+    },
+    { 
+      id: 'interior', 
+      name: 'Салон цэвэрлэгээ', 
+      icon: '🧽', 
+      price: '35000₮',
+      description: 'Доторх бүрэн цэвэрлэх, үнэрлэгээ'
+    }
+  ],
+  suv: [
+    { 
+      id: 'premium', 
+      name: 'Жийп бүгэн угаалга', 
+      icon: '⭐', 
+      price: '55000₮',
+      description: 'Том машин бүрэн угаалга, салон цэвэрлэгээ'
+    },
+    { 
+      id: 'exterior', 
+      name: 'Жийп гадна угаалга', 
+      icon: '🚙', 
+      price: '35000₮',
+      description: 'Жийпний гадна талбар бүрэн угаах'
+    },
+    { 
+      id: 'interior', 
+      name: 'Жийп салон цэвэрлэгээ', 
+      icon: '🧽', 
+      price: '40000₮',
+      description: 'Том салон бүрэн цэвэрлэх'
+    }
+  ],
+  truck: [
+    { 
+      id: 'premium', 
+      name: 'Ачааны бүгэн угаалга', 
+      icon: '⭐', 
+      price: '75000₮',
+      description: 'Ачааны машин бүрэн угаалга'
+    },
+    { 
+      id: 'exterior', 
+      name: 'Ачааны гадна угаалга', 
+      icon: '🚚', 
+      price: '50000₮',
+      description: 'Ачааны машины гадна угаалга'
+    }
+  ],
+  van: [
+    { 
+      id: 'premium', 
+      name: 'Транзит бүгэн угаалга', 
+      icon: '⭐', 
+      price: '60000₮',
+      description: 'Транзит бүрэн угаалга, салон цэвэрлэгээ'
+    },
+    { 
+      id: 'exterior', 
+      name: 'Транзит гадна угаалга', 
+      icon: '🚐', 
+      price: '40000₮',
+      description: 'Транзитын гадна угаалга'
+    },
+    { 
+      id: 'interior', 
+      name: 'Транзит салон цэвэрлэгээ', 
+      icon: '🧽', 
+      price: '35000₮',
+      description: 'Транзитын салон цэвэрлэгээ'
+    }
+  ],
+  motorcycle: [
+    { 
+      id: 'premium', 
+      name: 'Мотор бүгэн угаалга', 
+      icon: '⭐', 
+      price: '15000₮',
+      description: 'Мотор бүрэн угаалга, хамгаалалт'
+    },
+    { 
+      id: 'exterior', 
+      name: 'Мотор угаалга', 
+      icon: '🏍️', 
+      price: '10000₮',
+      description: 'Мотор угаалга'
+    }
+  ],
+  bus: [
+    { 
+      id: 'premium', 
+      name: 'Автобус бүгэн угаалга', 
+      icon: '⭐', 
+      price: '90000₮',
+      description: 'Автобус бүрэн угаалга, салон цэвэрлэгээ'
+    },
+    { 
+      id: 'exterior', 
+      name: 'Автобус гадна угаалга', 
+      icon: '🚌', 
+      price: '65000₮',
+      description: 'Автобусны гадна угаалга'
+    },
+    { 
+      id: 'interior', 
+      name: 'Автобус салон цэвэрлэгээ', 
+      icon: '🧽', 
+      price: '50000₮',
+      description: 'Автобусны салон цэвэрлэгээ'
+    }
+  ]
+};
 
 const carTypes = [
   { id: 'sedan', name: 'Седан', icon: '🚗' },
@@ -91,6 +194,11 @@ export default function App() {
   const [selectedWorker, setSelectedWorker] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
+  // Get current service types based on selected car type
+  const getCurrentServices = () => {
+    return serviceTypesByCarType[selectedCarType] || [];
+  };
+
   const handleMarkerPress = (location) => {
     setSelectedCarWash(location);
     setModalVisible(true);
@@ -111,6 +219,11 @@ export default function App() {
   const handleCarTypeSelect = (carTypeId) => {
     console.log('Car type selected:', carTypeId);
     setSelectedCarType(carTypeId);
+    // Reset service type when car type changes
+    const newServices = serviceTypesByCarType[carTypeId];
+    if (newServices && newServices.length > 0) {
+      setActiveServiceType(newServices[0].id);
+    }
   };
 
   const handleWorkerSelect = (workerId) => {
@@ -171,35 +284,41 @@ export default function App() {
                   </View>
 
                   {/* Service types header */}
-                  <Text style={styles.sectionTitle}>Угаалгын төрөл</Text>
-                  <Text style={styles.debugText}>Сонгосон: {activeServiceType}</Text>
+                  <Text style={styles.sectionTitle}>
+                    {carTypes.find(ct => ct.id === selectedCarType)?.name} - Угаалгын төрөл
+                  </Text>
+                  <Text style={styles.debugText}>
+                    Машин: {selectedCarType} | Үйлчилгээ: {activeServiceType}
+                  </Text>
                   
                   {/* Service types selection */}
-                  <View style={styles.serviceTypeGrid}>
-                    {serviceTypes.map((service) => (
-                      <TouchableOpacity
-                        key={service.id}
-                        style={[
-                          styles.serviceTypeCard,
-                          activeServiceType === service.id && styles.activeServiceCard,
-                        ]}
-                        onPress={() => handleServiceTypeSelect(service.id)}
-                      >
-                        <Text style={styles.serviceIcon}>{service.icon}</Text>
-                        <Text style={[
-                          styles.serviceName,
-                          activeServiceType === service.id && styles.activeServiceText
-                        ]}>{service.name}</Text>
-                        <Text style={[
-                          styles.serviceDescription,
-                          activeServiceType === service.id && styles.activeServiceText
-                        ]}>{service.description}</Text>
-                        <Text style={[
-                          styles.servicePrice,
-                          activeServiceType === service.id && styles.activeServicePrice
-                        ]}>{service.price}</Text>
-                      </TouchableOpacity>
-                    ))}
+                  <View style={[styles.serviceContainer, { backgroundColor: selectedCarType === 'sedan' ? '#f0f8ff' : selectedCarType === 'suv' ? '#fff8f0' : selectedCarType === 'truck' ? '#f0fff0' : selectedCarType === 'van' ? '#fff0f8' : selectedCarType === 'motorcycle' ? '#f8f0ff' : '#fffff0' }]}>
+                    <View style={styles.serviceTypeGrid}>
+                      {getCurrentServices().map((service) => (
+                        <TouchableOpacity
+                          key={service.id}
+                          style={[
+                            styles.serviceTypeCard,
+                            activeServiceType === service.id && styles.activeServiceCard,
+                          ]}
+                          onPress={() => handleServiceTypeSelect(service.id)}
+                        >
+                          <Text style={styles.serviceIcon}>{service.icon}</Text>
+                          <Text style={[
+                            styles.serviceName,
+                            activeServiceType === service.id && styles.activeServiceText
+                          ]}>{service.name}</Text>
+                          <Text style={[
+                            styles.serviceDescription,
+                            activeServiceType === service.id && styles.activeServiceText
+                          ]}>{service.description}</Text>
+                          <Text style={[
+                            styles.servicePrice,
+                            activeServiceType === service.id && styles.activeServicePrice
+                          ]}>{service.price}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
                   </View>
 
                   {/* Car type selection */}
@@ -434,6 +553,13 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 10,
     fontStyle: 'italic',
+  },
+  serviceContainer: {
+    borderRadius: 12,
+    padding: 15,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   carTypeGrid: {
     flexDirection: 'row',
