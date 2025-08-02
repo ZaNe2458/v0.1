@@ -44,18 +44,41 @@ const carWashLocations = [
   },
 ];
 
-const carTypes = [
-  { id: 'small', name: 'Жижиг тэрэг', icon: '🚗' },
-  { id: 'medium', name: 'Дунд оврын', icon: '🚙' },
-  { id: 'jeep', name: 'Жийп', icon: '🚐' },
-  { id: 'bigJeep', name: 'Том оврын жийп', icon: '🚛' },
-  { id: 'van', name: 'Транзит', icon: '🚚' },
-  { id: 'moto', name: 'Мотоцикл', icon: '🏍️' },
+const serviceTypes = [
+  { 
+    id: 'premium', 
+    name: 'Бүгэн угаалга', 
+    icon: '⭐', 
+    price: '45000₮',
+    description: 'Гадна талаар бүрэн угаах, доторх засах ухаантай'
+  },
+  { 
+    id: 'exterior', 
+    name: 'Гадна угаалга', 
+    icon: '🚗', 
+    price: '25000₮',
+    description: 'Машины гадна талбар бүрэн угаах'
+  },
+  { 
+    id: 'interior', 
+    name: 'Салон цэвэрлэгээ', 
+    icon: '🧽', 
+    price: '35000₮',
+    description: 'Доторх бүрэн цэвэрлэх, үнэрлэгээ'
+  }
+];
+
+const workers = [
+  { id: 1, name: 'Баяр', rating: 4.9, image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80' },
+  { id: 2, name: 'Болд', rating: 4.8, image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80' },
+  { id: 3, name: 'Батаа', rating: 4.7, image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80' },
+  { id: 4, name: 'Батбаяр', rating: 4.9, image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=150&q=80' }
 ];
 
 export default function App() {
   const [selectedCarWash, setSelectedCarWash] = useState(null);
-  const [activeCarType, setActiveCarType] = useState('small');
+  const [activeServiceType, setActiveServiceType] = useState('premium');
+  const [selectedWorker, setSelectedWorker] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
   const handleMarkerPress = (location) => {
@@ -120,21 +143,64 @@ export default function App() {
                     </View>
                   </View>
 
-                  {/* Car types selection */}
-                  {carTypes.map((type) => (
-                    <TouchableOpacity
-                      key={type.id}
-                      style={[
-                        styles.carTypeBox,
-                        activeCarType === type.id && styles.activeBox,
-                      ]}
-                      onPress={() => setActiveCarType(type.id)}
-                    >
-                      <Text style={styles.carIcon}>{type.icon}</Text>
-                      <Text style={styles.carTypeText}>{type.name}</Text>
-                      <Text style={styles.arrow}>{'>'}</Text>
-                    </TouchableOpacity>
-                  ))}
+                  {/* Service types header */}
+                  <Text style={styles.sectionTitle}>Угаалгын төрөл</Text>
+                  
+                  {/* Service types selection */}
+                  <View style={styles.serviceTypeGrid}>
+                    {serviceTypes.map((service) => (
+                      <TouchableOpacity
+                        key={service.id}
+                        style={[
+                          styles.serviceTypeCard,
+                          activeServiceType === service.id && styles.activeServiceCard,
+                        ]}
+                        onPress={() => setActiveServiceType(service.id)}
+                      >
+                        <Text style={styles.serviceIcon}>{service.icon}</Text>
+                        <Text style={styles.serviceName}>{service.name}</Text>
+                        <Text style={styles.serviceDescription}>{service.description}</Text>
+                        <Text style={styles.servicePrice}>{service.price}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+
+                  {/* Appointment date */}
+                  <View style={styles.appointmentSection}>
+                    <Text style={styles.sectionTitle}>Цаг авах</Text>
+                    <View style={styles.dateTimeRow}>
+                      <Text style={styles.dateText}>Jun 10, 2025</Text>
+                      <Text style={styles.timeText}>9:40 AM</Text>
+                    </View>
+                  </View>
+
+                  {/* Workers section */}
+                  <Text style={styles.sectionTitle}>Ажилчид</Text>
+                  <Text style={styles.workerStatus}>Active</Text>
+                  
+                  <View style={styles.workersGrid}>
+                    {workers.map((worker) => (
+                      <TouchableOpacity
+                        key={worker.id}
+                        style={[
+                          styles.workerCard,
+                          selectedWorker === worker.id && styles.selectedWorkerCard
+                        ]}
+                        onPress={() => setSelectedWorker(worker.id)}
+                      >
+                        <Image source={{ uri: worker.image }} style={styles.workerImage} />
+                        <Text style={styles.workerName}>{worker.name}</Text>
+                        <View style={styles.ratingContainer}>
+                          <Text style={styles.ratingText}>⭐ {worker.rating}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+
+                  {/* Book button */}
+                  <TouchableOpacity style={styles.bookButton}>
+                    <Text style={styles.bookButtonText}>Захиалга батлахдаа хүлээх</Text>
+                  </TouchableOpacity>
 
                   {/* Image gallery */}
                   {selectedCarWash.images && selectedCarWash.images.length > 0 && (
@@ -188,8 +254,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    maxHeight: '70%',
-    minHeight: '60%',
+    maxHeight: '85%',
+    minHeight: '70%',
   },
   closeButton: {
     position: 'absolute',
@@ -239,32 +305,128 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 24,
   },
-  carTypeBox: {
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 12,
+    marginTop: 20,
+  },
+  serviceTypeGrid: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#eaeaea',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 10,
+    flexWrap: 'wrap',
+    gap: 10,
+    marginBottom: 20,
   },
-  activeBox: {
-    backgroundColor: '#b9ff3c',
-  },
-  carIcon: {
-    fontSize: 24,
-    marginRight: 12,
-    width: 40,
-    textAlign: 'center',
-  },
-  carTypeText: {
-    fontSize: 16,
+  serviceTypeCard: {
     flex: 1,
+    minWidth: '30%',
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    padding: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+  },
+  activeServiceCard: {
+    backgroundColor: '#e7f8ff',
+    borderColor: '#007bff',
+  },
+  serviceIcon: {
+    fontSize: 24,
+    marginBottom: 8,
+  },
+  serviceName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  serviceDescription: {
+    fontSize: 11,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 8,
+    lineHeight: 14,
+  },
+  servicePrice: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#007bff',
+  },
+  appointmentSection: {
+    marginBottom: 20,
+  },
+  dateTimeRow: {
+    flexDirection: 'row',
+    gap: 20,
+  },
+  dateText: {
+    fontSize: 16,
+    fontWeight: '500',
     color: '#333',
   },
-  arrow: {
-    fontSize: 20,
-    fontWeight: '600',
+  timeText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#333',
+  },
+  workerStatus: {
+    fontSize: 14,
+    color: '#28a745',
+    marginBottom: 12,
+  },
+  workersGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginBottom: 20,
+  },
+  workerCard: {
+    width: (Dimensions.get('window').width - 60) / 4,
+    alignItems: 'center',
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#f8f9fa',
+  },
+  selectedWorkerCard: {
+    backgroundColor: '#fff3cd',
+    borderWidth: 2,
+    borderColor: '#ffc107',
+  },
+  workerImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginBottom: 6,
+  },
+  workerName: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  ratingText: {
+    fontSize: 10,
     color: '#666',
+  },
+  bookButton: {
+    backgroundColor: '#6c5ce7',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  bookButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
   },
   imageGallery: {
     marginTop: 20,

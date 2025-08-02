@@ -8,14 +8,16 @@ This project now includes both a web-based application and a React Native Expo m
 
 Preferred communication style: Simple, everyday language.
 
-## Recent Changes (July 31, 2025)
+## Recent Changes (August 2, 2025)
 
-- ✓ Created complete React Native Expo version of the car wash finder app
-- ✓ Implemented native maps using react-native-maps
-- ✓ Added @gorhom/bottom-sheet for smooth modal interactions
-- ✓ Configured gesture handling and animations with reanimated
-- ✓ Set up Expo development environment with QR code scanning
-- ✓ Maintained same features as web version: map markers, car type selection, image gallery
+- ✓ Updated React Native app with professional booking interface
+- ✓ Added service type selection with pricing (Premium 45,000₮, Exterior 25,000₮, Interior 35,000₮)
+- ✓ Implemented worker selection grid with photos and ratings
+- ✓ Added appointment scheduling display
+- ✓ Fixed dependency issues by simplifying to use standard React Native Modal
+- ✓ Replaced complex bottom sheet libraries with reliable native components
+- ✓ Created comprehensive local setup guide for users
+- ✓ Professional card-based UI matching modern booking app standards
 
 ## System Architecture
 
