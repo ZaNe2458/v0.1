@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   StatusBar,
   Modal,
+  Alert,
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
@@ -217,13 +218,26 @@ export default function App() {
   };
 
   const handleCarTypeSelect = (carTypeId) => {
-    console.log('Car type selected:', carTypeId);
+    console.log('=== CAR TYPE BUTTON PRESSED ===');
+    console.log('Previous car type:', selectedCarType);
+    console.log('New car type:', carTypeId);
+    
+    // Show alert to confirm button press is working
+    const carTypeName = carTypes.find(ct => ct.id === carTypeId)?.name || carTypeId;
+    Alert.alert('Car Type Selected', `You selected: ${carTypeName}`);
+    
     setSelectedCarType(carTypeId);
+    
     // Reset service type when car type changes
     const newServices = serviceTypesByCarType[carTypeId];
+    console.log('Available services for', carTypeId, ':', newServices);
+    
     if (newServices && newServices.length > 0) {
+      console.log('Setting service type to:', newServices[0].id);
       setActiveServiceType(newServices[0].id);
     }
+    
+    console.log('=== CAR TYPE CHANGE COMPLETE ===');
   };
 
   const handleWorkerSelect = (workerId) => {
@@ -287,9 +301,17 @@ export default function App() {
                   <Text style={styles.sectionTitle}>
                     {carTypes.find(ct => ct.id === selectedCarType)?.name} - Угаалгын төрөл
                   </Text>
-                  <Text style={styles.debugText}>
-                    Машин: {selectedCarType} | Үйлчилгээ: {activeServiceType}
-                  </Text>
+                  <View style={styles.debugContainer}>
+                    <Text style={styles.debugTextLarge}>
+                      🚗 {carTypes.find(ct => ct.id === selectedCarType)?.name}
+                    </Text>
+                    <Text style={styles.debugText}>
+                      Машин: {selectedCarType} | Үйлчилгээ: {activeServiceType}
+                    </Text>
+                    <Text style={styles.debugText}>
+                      Үйлчилгээний тоо: {getCurrentServices().length}
+                    </Text>
+                  </View>
                   
                   {/* Service types selection */}
                   <View style={[styles.serviceContainer, { backgroundColor: selectedCarType === 'sedan' ? '#f0f8ff' : selectedCarType === 'suv' ? '#fff8f0' : selectedCarType === 'truck' ? '#f0fff0' : selectedCarType === 'van' ? '#fff0f8' : selectedCarType === 'motorcycle' ? '#f8f0ff' : '#fffff0' }]}>
@@ -548,10 +570,26 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: '800',
   },
+  debugContainer: {
+    backgroundColor: '#e3f2fd',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 15,
+    borderWidth: 2,
+    borderColor: '#2196f3',
+  },
+  debugTextLarge: {
+    fontSize: 18,
+    color: '#1976d2',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 5,
+  },
   debugText: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#666',
-    marginBottom: 10,
+    textAlign: 'center',
+    marginBottom: 2,
     fontStyle: 'italic',
   },
   serviceContainer: {
