@@ -8,10 +8,9 @@ import {
   ScrollView,
   TouchableOpacity,
   StatusBar,
+  Modal,
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-import { BottomSheetModal, BottomSheetModalProvider, BottomSheetHandle } from '@gorhom/bottom-sheet';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const carWashLocations = [
   {
@@ -55,115 +54,120 @@ const carTypes = [
 ];
 
 export default function App() {
-  const bottomSheetModalRef = useRef(null);
-  const snapPoints = useMemo(() => ['60%'], []);
   const [selectedCarWash, setSelectedCarWash] = useState(null);
   const [activeCarType, setActiveCarType] = useState('small');
+  const [modalVisible, setModalVisible] = useState(false);
 
   const handleMarkerPress = (location) => {
     setSelectedCarWash(location);
-    bottomSheetModalRef.current?.present();
+    setModalVisible(true);
   };
 
-  const handleSheetDismiss = () => {
+  const handleCloseModal = () => {
+    setModalVisible(false);
     setSelectedCarWash(null);
   };
 
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <BottomSheetModalProvider>
-        <StatusBar barStyle="dark-content" />
-        
-        <MapView
-          style={styles.map}
-          initialRegion={{
-            latitude: 47.9185,
-            longitude: 106.917,
-            latitudeDelta: 0.02,
-            longitudeDelta: 0.02,
-          }}
-        >
-          {carWashLocations.map((loc) => (
-            <Marker
-              key={loc.id}
-              coordinate={{ latitude: loc.latitude, longitude: loc.longitude }}
-              title={loc.name}
-              onPress={() => handleMarkerPress(loc)}
-            />
-          ))}
-        </MapView>
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" />
+      
+      <MapView
+        style={styles.map}
+        initialRegion={{
+          latitude: 47.9185,
+          longitude: 106.917,
+          latitudeDelta: 0.02,
+          longitudeDelta: 0.02,
+        }}
+      >
+        {carWashLocations.map((loc) => (
+          <Marker
+            key={loc.id}
+            coordinate={{ latitude: loc.latitude, longitude: loc.longitude }}
+            title={loc.name}
+            onPress={() => handleMarkerPress(loc)}
+          />
+        ))}
+      </MapView>
 
-        <BottomSheetModal 
-          ref={bottomSheetModalRef} 
-          index={0} 
-          snapPoints={snapPoints}
-          onDismiss={handleSheetDismiss}
-          handleComponent={() => <BottomSheetHandle />}
-        >
-          <ScrollView style={styles.sheetContent} contentContainerStyle={{ paddingBottom: 40 }}>
-            {selectedCarWash && (
-              <>
-                {/* Header */}
-                <View style={styles.header}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.title}>{selectedCarWash.name}</Text>
-                    <Text style={styles.detailText}>📞 {selectedCarWash.phone}</Text>
-                    <Text style={styles.detailText}>📧 {selectedCarWash.email}</Text>
-                    <Text style={styles.detailText}>🕗 {selectedCarWash.hours}</Text>
-                    <Text style={styles.detailText}>📍 {selectedCarWash.address}</Text>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={handleCloseModal}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <TouchableOpacity style={styles.closeButton} onPress={handleCloseModal}>
+              <Text style={styles.closeButtonText}>✕</Text>
+            </TouchableOpacity>
+            
+            <ScrollView style={styles.sheetContent} contentContainerStyle={{ paddingBottom: 40 }}>
+              {selectedCarWash && (
+                <>
+                  {/* Header */}
+                  <View style={styles.header}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.title}>{selectedCarWash.name}</Text>
+                      <Text style={styles.detailText}>📞 {selectedCarWash.phone}</Text>
+                      <Text style={styles.detailText}>📧 {selectedCarWash.email}</Text>
+                      <Text style={styles.detailText}>🕗 {selectedCarWash.hours}</Text>
+                      <Text style={styles.detailText}>📍 {selectedCarWash.address}</Text>
+                    </View>
+                    <View style={styles.logoContainer}>
+                      <Text style={styles.logoText}>🚗</Text>
+                    </View>
                   </View>
-                  <View style={styles.logoContainer}>
-                    <Text style={styles.logoText}>🚗</Text>
-                  </View>
-                </View>
 
-                {/* Car types selection */}
-                {carTypes.map((type) => (
-                  <TouchableOpacity
-                    key={type.id}
-                    style={[
-                      styles.carTypeBox,
-                      activeCarType === type.id && styles.activeBox,
-                    ]}
-                    onPress={() => setActiveCarType(type.id)}
-                  >
-                    <Text style={styles.carIcon}>{type.icon}</Text>
-                    <Text style={styles.carTypeText}>{type.name}</Text>
-                    <Text style={styles.arrow}>{'>'}</Text>
-                  </TouchableOpacity>
-                ))}
+                  {/* Car types selection */}
+                  {carTypes.map((type) => (
+                    <TouchableOpacity
+                      key={type.id}
+                      style={[
+                        styles.carTypeBox,
+                        activeCarType === type.id && styles.activeBox,
+                      ]}
+                      onPress={() => setActiveCarType(type.id)}
+                    >
+                      <Text style={styles.carIcon}>{type.icon}</Text>
+                      <Text style={styles.carTypeText}>{type.name}</Text>
+                      <Text style={styles.arrow}>{'>'}</Text>
+                    </TouchableOpacity>
+                  ))}
 
-                {/* Image gallery */}
-                {selectedCarWash.images && selectedCarWash.images.length > 0 && (
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    style={styles.imageGallery}
-                    contentContainerStyle={{ paddingRight: 20 }}
-                  >
-                    {selectedCarWash.images.map((uri, index) => (
-                      <Image
-                        key={index}
-                        source={{ uri }}
-                        style={styles.galleryImage}
-                        resizeMode="cover"
-                      />
-                    ))}
-                  </ScrollView>
-                )}
+                  {/* Image gallery */}
+                  {selectedCarWash.images && selectedCarWash.images.length > 0 && (
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      style={styles.imageGallery}
+                      contentContainerStyle={{ paddingRight: 20 }}
+                    >
+                      {selectedCarWash.images.map((uri, index) => (
+                        <Image
+                          key={index}
+                          source={{ uri }}
+                          style={styles.galleryImage}
+                          resizeMode="cover"
+                        />
+                      ))}
+                    </ScrollView>
+                  )}
 
-                {/* Bottom large image */}
-                <Image
-                  source={{ uri: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80' }}
-                  style={styles.bottomImage}
-                  resizeMode="cover"
-                />
-              </>
-            )}
-          </ScrollView>
-        </BottomSheetModal>
-      </BottomSheetModalProvider>
-    </GestureHandlerRootView>
+                  {/* Bottom large image */}
+                  <Image
+                    source={{ uri: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80' }}
+                    style={styles.bottomImage}
+                    resizeMode="cover"
+                  />
+                </>
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
 }
 
@@ -175,8 +179,38 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '70%',
+    minHeight: '60%',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 15,
+    right: 20,
+    zIndex: 1,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#f0f0f0',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  closeButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#666',
+  },
   sheetContent: {
     padding: 20,
+    paddingTop: 50,
   },
   header: {
     flexDirection: 'row',

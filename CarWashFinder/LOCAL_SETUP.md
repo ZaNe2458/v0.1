@@ -103,10 +103,23 @@ CarWashFinder/
 npm install -g @expo/cli
 ```
 
-### Issue: "Module not found" errors
-**Solution**: Make sure you installed dependencies:
+### Issue: "Module not found" errors or babel plugin issues
+**Solution**: 
+1. Delete node_modules and package-lock.json:
+```bash
+rm -rf node_modules
+rm package-lock.json
+```
+
+2. Reinstall dependencies:
 ```bash
 npm install
+```
+
+3. If still having issues, install missing packages:
+```bash
+npm install react-native-maps
+npm install @gorhom/bottom-sheet react-native-reanimated react-native-gesture-handler
 ```
 
 ### Issue: Metro bundler fails to start
@@ -114,8 +127,12 @@ npm install
 ```bash
 npm cache clean --force
 rm -rf node_modules
+rm package-lock.json
 npm install
 ```
+
+### Issue: "Cannot find module 'react-native-reanimated/plugin'"
+**Solution**: This is fixed in the latest version. The app now uses a simple Modal instead of complex bottom sheet libraries to avoid dependency issues.
 
 ### Issue: QR code doesn't work
 **Solutions**:
