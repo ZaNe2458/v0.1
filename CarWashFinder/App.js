@@ -91,6 +91,16 @@ export default function App() {
     setSelectedCarWash(null);
   };
 
+  const handleServiceTypeSelect = (serviceId) => {
+    console.log('Service selected:', serviceId);
+    setActiveServiceType(serviceId);
+  };
+
+  const handleWorkerSelect = (workerId) => {
+    console.log('Worker selected:', workerId);
+    setSelectedWorker(workerId);
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
@@ -155,12 +165,21 @@ export default function App() {
                           styles.serviceTypeCard,
                           activeServiceType === service.id && styles.activeServiceCard,
                         ]}
-                        onPress={() => setActiveServiceType(service.id)}
+                        onPress={() => handleServiceTypeSelect(service.id)}
                       >
                         <Text style={styles.serviceIcon}>{service.icon}</Text>
-                        <Text style={styles.serviceName}>{service.name}</Text>
-                        <Text style={styles.serviceDescription}>{service.description}</Text>
-                        <Text style={styles.servicePrice}>{service.price}</Text>
+                        <Text style={[
+                          styles.serviceName,
+                          activeServiceType === service.id && styles.activeServiceText
+                        ]}>{service.name}</Text>
+                        <Text style={[
+                          styles.serviceDescription,
+                          activeServiceType === service.id && styles.activeServiceText
+                        ]}>{service.description}</Text>
+                        <Text style={[
+                          styles.servicePrice,
+                          activeServiceType === service.id && styles.activeServicePrice
+                        ]}>{service.price}</Text>
                       </TouchableOpacity>
                     ))}
                   </View>
@@ -186,7 +205,7 @@ export default function App() {
                           styles.workerCard,
                           selectedWorker === worker.id && styles.selectedWorkerCard
                         ]}
-                        onPress={() => setSelectedWorker(worker.id)}
+                        onPress={() => handleWorkerSelect(worker.id)}
                       >
                         <Image source={{ uri: worker.image }} style={styles.workerImage} />
                         <Text style={styles.workerName}>{worker.name}</Text>
@@ -325,12 +344,18 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#e9ecef',
   },
   activeServiceCard: {
-    backgroundColor: '#e7f8ff',
+    backgroundColor: '#007bff',
     borderColor: '#007bff',
+    transform: [{ scale: 1.02 }],
+    shadowColor: '#007bff',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
   },
   serviceIcon: {
     fontSize: 24,
@@ -354,6 +379,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: '#007bff',
+  },
+  activeServiceText: {
+    color: 'white',
+  },
+  activeServicePrice: {
+    color: 'white',
+    fontWeight: '800',
   },
   appointmentSection: {
     marginBottom: 20,
@@ -391,9 +423,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f9fa',
   },
   selectedWorkerCard: {
-    backgroundColor: '#fff3cd',
-    borderWidth: 2,
-    borderColor: '#ffc107',
+    backgroundColor: '#ffc107',
+    borderWidth: 3,
+    borderColor: '#ff8c00',
+    transform: [{ scale: 1.05 }],
+    shadowColor: '#ffc107',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 8,
   },
   workerImage: {
     width: 50,
