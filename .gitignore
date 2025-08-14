@@ -1,0 +1,37 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local config
+.local/
+.vscode/
+.config/
+.replit
+replit.md
+
+# Expo / React Native
+.expo/
+.expo-shared/
+node_modules/
+npm-debug.*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Build output
+dist/
+build/
+android/
+ios/
+
+# Assets cache
+*.log
+*.tmp
+*.temp
+*.pid
+*.seed
+*.pid.lock
+
+# Optional: Ignore these if not needed
+attached_assets/
+CarWashFinder/v0.1/
