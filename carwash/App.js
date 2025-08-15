@@ -9,6 +9,8 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 
+import LoginScreen from './screens/LoginScreen';
+
 import CarWashDetailScreen from './screens/CarWashDetailScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import CarsScreen from './screens/CarsScreen';
@@ -20,7 +22,6 @@ import AddCarScreen from './screens/AddCarScreen';
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
 
-// -------- Зүүн талын menu товч --------
 function MenuButton() {
   const navigation = useNavigation();
   return (
@@ -38,13 +39,11 @@ function MenuButton() {
   );
 }
 
-// -------- Баруун талын search товч --------
 function SearchButton() {
   const navigation = useNavigation();
   return (
     <TouchableOpacity
       onPress={() => {
-        // Энд search modal эсвэл search дэлгэц рүү navigation хийж болно
         alert('Search clicked!');
       }}
       style={{
@@ -67,9 +66,7 @@ function DrawerRoutes() {
         headerTransparent: true,
         headerTitleAlign: 'center',
         headerTitleStyle: { color: '#000' },
-        // Menu товч бүх дэлгэц дээр гарна
         headerLeft: () => <MenuButton />,
-        // Search товч зөвхөн HomeScreen дээр гарна
         headerRight:
           route.name === 'Газрын зураг' ? () => <SearchButton /> : undefined,
       })}
@@ -87,6 +84,8 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Login" component={LoginScreen} />
+
         <Stack.Screen name="Main" component={DrawerRoutes} />
         <Stack.Screen name="AddCarScreen" component={AddCarScreen} />
         <Stack.Screen
