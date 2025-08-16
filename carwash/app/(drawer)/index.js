@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import 'expo-router/entry';
+
 import {
   View,
   Text,
@@ -25,8 +27,8 @@ const carWashLocations = [
     address: 'District Bayanzurkh, UB tower office, Ulaanbaatar',
     hours: '08:00 - 23:00',
     images: [
-      require('../assets/logos/shine.jpg'),
-      require('../assets/logos/shine.jpg'),
+      require('../../assets/logos/shine.jpg'),
+      require('../../assets/logos/shine.jpg'),
     ],
   },
   {
@@ -39,34 +41,38 @@ const carWashLocations = [
     address: 'Khan-Uul District, Peace Avenue, Ulaanbaatar',
     hours: '07:00 - 22:00',
     images: [
-      require('../assets/logos/shine.jpg'),
-      require('../assets/logos/shine.jpg'),
+      require('../../assets/logos/shine.jpg'),
+      require('../../assets/logos/shine.jpg'),
     ],
   },
 ];
 
 const carTypes = [
-  { id: 'sedan', name: 'Седан', image: require('../assets/images/sedan.png') },
-  { id: 'suv', name: 'Жийп', image: require('../assets/images/jeep.png') },
+  {
+    id: 'sedan',
+    name: 'Седан',
+    image: require('../../assets/images/sedan.png'),
+  },
+  { id: 'suv', name: 'Жийп', image: require('../../assets/images/jeep.png') },
   {
     id: 'truck',
     name: 'Ачааны',
-    image: require('../assets/images/jeep_b.png'),
+    image: require('../../assets/images/jeep_b.png'),
   },
   {
     id: 'van',
     name: 'Транзит',
-    image: require('../assets/images/transit.png'),
+    image: require('../../assets/images/transit.png'),
   },
   {
     id: 'motorcycle',
     name: 'Мотор',
-    image: require('../assets/images/moto.png'),
+    image: require('../../assets/images/moto.png'),
   },
   {
     id: 'bus',
     name: 'Автобус',
-    image: require('../assets/images/transit.png'),
+    image: require('../../assets/images/transit.png'),
   },
 ];
 
@@ -280,7 +286,7 @@ export default function App() {
                     </View>
                     <View style={styles.logoContainer}>
                       <Image
-                        source={require('../assets/logos/shine.jpg')}
+                        source={require('../../assets/logos/shine.jpg')}
                         style={styles.carwashlogo}
                       />
                     </View>
@@ -560,17 +566,17 @@ export default function App() {
 
                   <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                     <Image
-                      source={require('../assets/logos/shine.jpg')}
+                      source={require('../../assets/logos/shine.jpg')}
                       style={styles.bottomImage}
                       resizeMode="cover"
                     />
                     <Image
-                      source={require('../assets/logos/shine.jpg')}
+                      source={require('../../assets/logos/shine.jpg')}
                       style={styles.bottomImage}
                       resizeMode="cover"
                     />
                     <Image
-                      source={require('../assets/logos/shine.jpg')}
+                      source={require('../../assets/logos/shine.jpg')}
                       style={styles.bottomImage}
                       resizeMode="cover"
                     />

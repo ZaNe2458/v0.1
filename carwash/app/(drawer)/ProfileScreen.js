@@ -11,8 +11,8 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
-import defaultPhoto from '../assets/images/default-avatar.avif';
-import anotherPhoto from '../assets/logos/shine.jpg';
+import defaultPhoto from '../../assets/images/default-avatar.avif';
+import anotherPhoto from '../../assets/logos/shine.jpg';
 
 export default function ProfileScreen() {
   const [name, setName] = useState('Батболд');

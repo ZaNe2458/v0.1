@@ -18,7 +18,7 @@ const promotionsData = [
     type: 'loyalty',
     progress: 3,
     total: 5,
-    logo: require('../assets/logos/shine.jpg'),
+    logo: require('../../assets/logos/shine.jpg'),
   },
   {
     id: '2',
@@ -28,7 +28,7 @@ const promotionsData = [
       { service: 'Мотор угаах', discount: '50%', duration: '2 хоног' },
       { service: 'Дрилл өнгөлгөө', discount: '50%', duration: '2 хоног' },
     ],
-    logo: require('../assets/logos/shine.jpg'),
+    logo: require('../../assets/logos/shine.jpg'),
   },
   {
     id: '3',
@@ -36,7 +36,7 @@ const promotionsData = [
     type: 'loyalty',
     progress: 1,
     total: 3,
-    logo: require('../assets/logos/shine.jpg'),
+    logo: require('../../assets/logos/shine.jpg'),
   },
   {
     id: '4',
@@ -46,7 +46,7 @@ const promotionsData = [
       { service: 'Дотоод угаалга', discount: '30%', duration: '3 хоног' },
       { service: 'Гадна өнгөлгөө', discount: '20%', duration: '1 хоног' },
     ],
-    logo: require('../assets/logos/shine.jpg'),
+    logo: require('../../assets/logos/shine.jpg'),
   },
 ];
 

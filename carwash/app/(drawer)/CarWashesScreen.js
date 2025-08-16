@@ -18,21 +18,21 @@ const carWashes = [
     name: 'Цэвэр Угаалга',
     location: 'БЗД, 13-р хороолол',
     rating: 4.5,
-    logo: require('../assets/logos/shine.jpg'),
+    logo: require('../../assets/logos/shine.jpg'),
   },
   {
     id: '2',
     name: 'Shine Wash',
     location: 'СБД, 5-р хороо',
     rating: 4.7,
-    logo: require('../assets/logos/shine.jpg'),
+    logo: require('../../assets/logos/shine.jpg'),
   },
   {
     id: '3',
     name: 'Smart Car Wash',
     location: 'ХУД, 19-р хороо',
     rating: 4.3,
-    logo: require('../assets/logos/shine.jpg'),
+    logo: require('../../assets/logos/shine.jpg'),
   },
 ];
 
@@ -72,7 +72,6 @@ export default function CarWashesScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Search bar */}
       <TextInput
         style={styles.searchInput}
         placeholder="Хайх..."
