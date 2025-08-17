@@ -89,7 +89,6 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Сануулах / Нууц үг мартсан */}
           {isLogin && (
             <View
               style={[
@@ -116,7 +115,6 @@ export default function LoginScreen() {
             </View>
           )}
 
-          {/* Давтах нууц үг (бүртгүүлэх үед) */}
           {!isLogin && (
             <View style={styles.passwordContainer}>
               <TextInput
@@ -139,7 +137,6 @@ export default function LoginScreen() {
             </View>
           )}
 
-          {/* Угаагчаар бүртгүүлэх (бүртгүүлэх үед) */}
           {!isLogin && (
             <View style={styles.checkboxContainer}>
               <Checkbox value={isWasher} onValueChange={setIsWasher} />
@@ -149,7 +146,6 @@ export default function LoginScreen() {
             </View>
           )}
 
-          {/* Button */}
           <Pressable onPress={handleLogin} style={styles.button}>
             <Text style={styles.buttonText}>
               {isLogin ? 'Нэвтрэх' : 'Бүртгүүлэх'}

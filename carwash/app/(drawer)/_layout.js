@@ -1,4 +1,3 @@
-// app/(drawer)/_layout.js
 import React, { useState } from 'react';
 import {
   TouchableOpacity,
@@ -11,7 +10,6 @@ import { Drawer } from 'expo-router/drawer';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
-// Menu Button
 function MenuButton({ navigation }) {
   return (
     <TouchableOpacity
@@ -23,7 +21,6 @@ function MenuButton({ navigation }) {
   );
 }
 
-// Expandable Search Button in Header
 function ExpandableSearch() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -52,18 +49,16 @@ function ExpandableSearch() {
 export default function DrawerLayout() {
   return (
     <Drawer>
-      {/* Газрын зураг screen */}
       <Drawer.Screen
         name="index"
         options={({ navigation }) => ({
           headerLeft: () => <MenuButton navigation={navigation} />,
-          headerTitle: '', // төвд title байхгүй
-          headerRight: () => <ExpandableSearch />, // зөвхөн icon анх
+          headerTitle: '',
+          headerRight: () => <ExpandableSearch />,
           headerTransparent: true,
         })}
       />
 
-      {/* Машинууд screen */}
       <Drawer.Screen
         name="CarsScreen"
         options={({ navigation }) => ({
@@ -73,7 +68,6 @@ export default function DrawerLayout() {
         })}
       />
 
-      {/* Угаалгын газар screen */}
       <Drawer.Screen
         name="CarWashesScreen"
         options={({ navigation }) => ({
@@ -83,7 +77,6 @@ export default function DrawerLayout() {
         })}
       />
 
-      {/* Хувийн мэдээлэл screen */}
       <Drawer.Screen
         name="ProfileScreen"
         options={({ navigation }) => ({
@@ -93,7 +86,6 @@ export default function DrawerLayout() {
         })}
       />
 
-      {/* Урамшуулал screen */}
       <Drawer.Screen
         name="RewardsScreen"
         options={({ navigation }) => ({

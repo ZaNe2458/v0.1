@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-// Таны бүх car wash-уудыг энд хадгалах
 const carWashes = [
   {
     id: '1',
@@ -35,8 +34,8 @@ const carWashes = [
 ];
 
 export default function CarWashDetailScreen() {
-  const { carWashId } = useSearchParams(); // URL/params-аас id-ийг авна
-  const carWash = carWashes.find((c) => c.id === carWashId); // item.id-д тааруулж carWash object олох
+  const { carWashId } = useSearchParams();
+  const carWash = carWashes.find((c) => c.id === carWashId);
 
   if (!carWash) return <Text>Угаалгын газар олдсонгүй</Text>;
 

@@ -421,7 +421,6 @@ export default function App() {
                                   alignItems: 'center',
                                 }}
                               >
-                                {/* Checkbox */}
                                 <View
                                   style={{
                                     width: 22,
@@ -446,7 +445,6 @@ export default function App() {
                                   )}
                                 </View>
 
-                                {/* Нэр ба тайлбар */}
                                 <View>
                                   <Text style={{ fontWeight: '600' }}>
                                     {service.name}
@@ -457,7 +455,6 @@ export default function App() {
                                 </View>
                               </View>
 
-                              {/* Үнэ */}
                               <Text
                                 style={{ fontWeight: '600', color: '#007bff' }}
                               >
@@ -515,7 +512,6 @@ export default function App() {
                     )}
                   </View>
 
-                  {/* Workers */}
                   <Text style={styles.sectionTitle}>Ажилчид</Text>
                   <Text style={styles.workerStatus}>Active</Text>
                   <ScrollView
@@ -548,7 +544,6 @@ export default function App() {
                     ))}
                   </ScrollView>
 
-                  {/* Booking Button */}
                   <TouchableOpacity style={styles.bookButton}>
                     <Text style={styles.bookButtonText}>
                       Захиалга баталгаажуулах
