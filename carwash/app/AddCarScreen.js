@@ -35,7 +35,6 @@ export default function AddCarScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Буцах товч */}
       <TouchableOpacity
         style={styles.backBtn}
         onPress={() => navigation.goBack()}

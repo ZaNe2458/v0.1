@@ -38,7 +38,6 @@ export default function LoginScreen() {
         <Text style={styles.subtitle}>Өргөн сонголт, хурдан боломж</Text>
 
         <View style={styles.formContainer}>
-          {/* Tab сонголт */}
           <View style={styles.tabContainer}>
             <TouchableOpacity
               onPress={() => setIsLogin(true)}
@@ -58,7 +57,6 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Утасны дугаар */}
           <View style={styles.passwordContainer}>
             <TextInput
               placeholder="Утасны дугаар"
@@ -70,7 +68,6 @@ export default function LoginScreen() {
             />
           </View>
 
-          {/* Нууц үг */}
           <View style={styles.passwordContainer}>
             <TextInput
               placeholder="Нууц үг"
