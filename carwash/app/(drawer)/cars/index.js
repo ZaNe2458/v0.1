@@ -7,7 +7,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useState } from 'react';
-import { useNavigation } from 'expo-router';
+import { useRouter } from 'expo-router';
 
 export default function CarsScreen() {
   const [cars, setCars] = useState([
@@ -27,7 +27,7 @@ export default function CarsScreen() {
     },
   ]);
 
-  const navigation = useNavigation();
+  const router = useRouter();
 
   const removeCar = (id) => {
     setCars((prev) => prev.filter((car) => car.id !== id));
@@ -54,10 +54,9 @@ export default function CarsScreen() {
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
       />
-
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => navigation.navigate('AddCarScreen')}
+        onPress={() => router.push('/(drawer)/cars/AddCarScreen')}
       >
         <Text style={styles.addText}>➕ Машин нэмэх</Text>
       </TouchableOpacity>

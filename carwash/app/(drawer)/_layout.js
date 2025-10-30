@@ -1,19 +1,13 @@
-import React, { useState } from 'react';
-import {
-  TouchableOpacity,
-  StyleSheet,
-  TextInput,
-  View,
-  Animated,
-} from 'react-native';
+import React from 'react';
+import { TouchableOpacity, StyleSheet } from 'react-native';
 import { Drawer } from 'expo-router/drawer';
+import { useSegments, usePathname } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
 
 function MenuButton({ navigation }) {
   return (
     <TouchableOpacity
-      onPress={() => navigation.toggleDrawer()}
+      onPress={() => navigation.openDrawer()}
       style={styles.menuButton}
     >
       <Ionicons name="menu" size={28} color="#000" />
@@ -21,78 +15,77 @@ function MenuButton({ navigation }) {
   );
 }
 
-function ExpandableSearch() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [query, setQuery] = useState('');
-
-  return (
-    <View style={styles.searchWrapper}>
-      {isOpen && (
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Хайх..."
-          value={query}
-          onChangeText={setQuery}
-          autoFocus={true}
-        />
-      )}
-      <TouchableOpacity
-        onPress={() => setIsOpen(!isOpen)}
-        style={styles.searchIconWrapper}
-      >
-        <Ionicons name="search" size={24} color="#000" />
-      </TouchableOpacity>
-    </View>
-  );
-}
-
 export default function DrawerLayout() {
+  const pathname = usePathname();
+
+  // ✅ Route замаас хамаарч гарчгийг өөрчлөх
+  const getHeaderTitle = () => {
+    if (pathname?.includes('AddCarScreen')) return 'Машин нэмэх';
+    if (pathname?.includes('cars')) return 'Миний машинууд';
+    if (pathname?.includes('ProfileScreen')) return 'Хувийн мэдээлэл';
+    if (pathname?.includes('index')) return 'Газрын зураг';
+    return '';
+  };
+
   return (
-    <Drawer>
+    <Drawer
+      screenOptions={({ navigation }) => ({
+        headerLeft: () => {
+          if (
+            pathname.includes('AddCarScreen') ||
+            pathname.includes('CarWashDetail')
+          )
+            return null;
+          return <MenuButton navigation={navigation} />;
+        },
+        headerTitle: getHeaderTitle(),
+        headerTransparent: true,
+      })}
+    >
       <Drawer.Screen
         name="index"
-        options={({ navigation }) => ({
-          headerLeft: () => <MenuButton navigation={navigation} />,
-          headerTitle: '',
-          headerRight: () => <ExpandableSearch />,
-          headerTransparent: true,
-        })}
+        options={{
+          drawerLabel: 'Газрын зураг',
+          drawerIcon: ({ color, size }) => (
+            <Ionicons name="map" size={size} color={color} />
+          ),
+        }}
       />
-
       <Drawer.Screen
-        name="CarsScreen"
-        options={({ navigation }) => ({
-          title: 'Машинууд',
-          headerLeft: () => <MenuButton navigation={navigation} />,
-          headerTransparent: true,
-        })}
+        name="cars"
+        options={{
+          drawerLabel: 'Машинууд',
+          drawerIcon: ({ color, size }) => (
+            <Ionicons name="car" size={size} color={color} />
+          ),
+        }}
       />
-
       <Drawer.Screen
-        name="CarWashesScreen"
-        options={({ navigation }) => ({
-          title: 'Угаалгын газар',
-          headerLeft: () => <MenuButton navigation={navigation} />,
-          headerTransparent: true,
-        })}
+        name="wash"
+        options={{
+          drawerLabel: 'Угаалгийн газрууд',
+          drawerIcon: ({ color, size }) => (
+            <Ionicons name="water-outline" size={size} color={color} />
+          ),
+        }}
       />
-
-      <Drawer.Screen
-        name="ProfileScreen"
-        options={({ navigation }) => ({
-          title: 'Хувийн мэдээлэл',
-          headerLeft: () => <MenuButton navigation={navigation} />,
-          headerTransparent: true,
-        })}
-      />
-
       <Drawer.Screen
         name="RewardsScreen"
-        options={({ navigation }) => ({
-          title: 'Урамшуулал',
-          headerLeft: () => <MenuButton navigation={navigation} />,
-          headerTransparent: true,
-        })}
+        options={{
+          drawerLabel: 'Урамшуулал',
+          drawerIcon: ({ color, size }) => (
+            <Ionicons name="gift" size={size} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="ProfileScreen"
+        options={{
+          drawerLabel: 'Хувийн мэдээлэл',
+          drawerIcon: ({ color, size }) => (
+            <Ionicons name="person" size={size} color={color} />
+          ),
+        }}
       />
     </Drawer>
   );
@@ -102,20 +95,5 @@ const styles = StyleSheet.create({
   menuButton: {
     padding: 8,
     marginLeft: 10,
-  },
-  searchWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  searchIconWrapper: {
-    padding: 8,
-  },
-  searchInput: {
-    width: 200,
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    borderRadius: 25,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    marginRight: 10,
   },
 });

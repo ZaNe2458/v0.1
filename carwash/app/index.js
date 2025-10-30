@@ -11,11 +11,15 @@ import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import Checkbox from 'expo-checkbox';
 import { Feather } from '@expo/vector-icons';
+import { loginUser, registerUser } from '../data/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from 'react-native';
 
 export default function LoginScreen() {
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
   const [phone, setPhone] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -23,8 +27,51 @@ export default function LoginScreen() {
   const [isWasher, setIsWasher] = useState(false);
   const [isRemembered, setIsRemembered] = useState(false);
 
-  const handleLogin = () => {
-    router.replace('(drawer)/index');
+  const handleLogin = async () => {
+    if (!username || !password || (!isLogin && !confirmPassword)) {
+      Alert.alert('Анхаар', 'Бүх шаардлагатай талбарыг бөглөнө үү!');
+      return;
+    }
+    if (isLogin) {
+      try {
+        const data = await loginUser(username, password);
+        if (data.data.access) {
+          Alert.alert('Амжилттай', 'Та амжилттай нэвтэрлээ!');
+          router.replace('/(drawer)');
+        } else {
+          Alert.alert('Алдаа', 'Нэвтрэхэд асуудал гарлаа.');
+        }
+      } catch (error) {
+        Alert.alert('Нэвтрэхэд алдаа гарлаа', 'Дахин оролдоно уу.');
+      }
+    } else {
+      if (password !== confirmPassword) {
+        Alert.alert('Анхаар', 'Нууц үг таарахгүй байна!');
+        return;
+      }
+
+      const newUser = {
+        username: username,
+        email: `${username}@carwash.mn`,
+        password: password,
+        first_name: 'Хэрэглэгч',
+        last_name: 'Шинэ',
+        phone: phone,
+        address: 'Улаанбаатар',
+      };
+
+      try {
+        const result = await registerUser(newUser);
+        if (result.status === 'success') {
+          Alert.alert('Амжилттай', 'Бүртгэл үүсгэлээ!');
+          setIsLogin(true);
+        } else {
+          Alert.alert('Алдаа', 'Бүртгэл амжилтгүй боллоо.');
+        }
+      } catch (error) {
+        Alert.alert('Алдаа', 'Бүртгэл үүсгэхэд алдаа гарлаа.');
+      }
+    }
   };
 
   return (
@@ -59,12 +106,12 @@ export default function LoginScreen() {
 
           <View style={styles.passwordContainer}>
             <TextInput
-              placeholder="Утасны дугаар"
+              placeholder="Хэрэглэгчийн нэр"
               placeholderTextColor="#888"
-              value={phone}
-              onChangeText={setPhone}
+              value={username}
+              onChangeText={setUsername}
               style={[styles.input, { flex: 1 }]}
-              keyboardType="numeric"
+              autoCapitalize="none"
             />
           </View>
 

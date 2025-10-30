@@ -1,10 +1,10 @@
 import { Stack } from 'expo-router';
 
-export default function RootLayout() {
+export default function CarsLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
-      <Stack.Screen name="(drawer)" />
+      <Stack.Screen name="CarWashesDetail" />
     </Stack>
   );
 }

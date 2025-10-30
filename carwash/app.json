@@ -1,7 +1,5 @@
 {
   "expo": {
-    "entryPoint": "./index.js",
-
     "name": "CarWashFinder",
     "slug": "CarWashFinder",
     "scheme": "carwashfinder",

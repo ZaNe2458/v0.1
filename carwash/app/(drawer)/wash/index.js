@@ -34,6 +34,20 @@ const carWashes = [
     rating: 4.3,
     logo: require('../../assets/logos/shine.jpg'),
   },
+  {
+    id: '4',
+    name: 'Smart Car Wash',
+    location: 'ХУД, 19-р хороо',
+    rating: 4.3,
+    logo: require('../../assets/logos/shine.jpg'),
+  },
+  {
+    id: '5',
+    name: 'Smart Car Wash',
+    location: 'ХУД, 19-р хороо',
+    rating: 4.3,
+    logo: require('../../assets/logos/shine.jpg'),
+  },
 ];
 
 const categories = [
@@ -57,7 +71,9 @@ export default function CarWashesScreen() {
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.cardWrapper}
-      onPress={() => navigation.navigate('CarWashDetail', { carWash: item })}
+      onPress={() =>
+        navigation.navigate('CarWashDetail', { carWashId: item.id })
+      }
     >
       <BlurView intensity={80} tint="light" style={styles.card}>
         <Image source={item.logo} style={styles.logo} />
@@ -79,7 +95,6 @@ export default function CarWashesScreen() {
         onChangeText={setSearchText}
       />
 
-      {}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
