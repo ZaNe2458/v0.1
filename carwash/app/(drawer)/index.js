@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import ConfirmBookingModal from '../components/ConfirmBookingModal';
+
 import {
   View,
   Modal,
@@ -35,6 +37,7 @@ export default function App() {
   const [selectedWorker, setSelectedWorker] = useState(null);
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
+  const [confirmVisible, setConfirmVisible] = useState(false);
 
   const handleMarkerPress = (loc) => {
     setSelectedCarWash(loc);
@@ -146,9 +149,22 @@ export default function App() {
                   onSelect={setSelectedWorker}
                 />
 
-                <TouchableOpacity style={styles.bookBtn}>
+                <TouchableOpacity
+                  style={styles.bookBtn}
+                  onPress={() => setConfirmVisible(true)}
+                >
                   <Text style={styles.bookText}>Захиалга баталгаажуулах</Text>
                 </TouchableOpacity>
+
+                <ConfirmBookingModal
+                  visible={confirmVisible}
+                  onClose={() => setConfirmVisible(false)}
+                  selectedCarType={selectedCarType}
+                  activeServiceType={activeServiceType}
+                  checkedServices={checkedServices}
+                  additionalServices={additionalServices}
+                  selectedWorker={selectedWorker}
+                />
               </ScrollView>
             )}
           </View>

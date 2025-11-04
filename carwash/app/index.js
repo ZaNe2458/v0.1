@@ -36,7 +36,6 @@ export default function LoginScreen() {
       try {
         const data = await loginUser(username, password);
         if (data.data.access) {
-          Alert.alert('Амжилттай', 'Та амжилттай нэвтэрлээ!');
           router.replace('/(drawer)');
         } else {
           Alert.alert('Алдаа', 'Нэвтрэхэд асуудал гарлаа.');

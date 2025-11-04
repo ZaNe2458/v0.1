@@ -18,7 +18,7 @@ export default function ServiceTypeSelector({
               activeServiceType === service.id ? '#e7f8ff' : '#f8f9fa',
             borderRadius: 12,
             padding: 12,
-            alignItems: 'center', // child Text-уудыг center-д байлгах
+            alignItems: 'center',
             justifyContent: 'center',
             marginRight: 10,
           }}
