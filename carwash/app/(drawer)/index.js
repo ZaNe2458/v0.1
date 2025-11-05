@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import ConfirmBookingModal from '../components/ConfirmBookingModal';
+import ConfirmBookingModal from '../../src/components/ConfirmBookingModal';
 
 import {
   View,
@@ -22,10 +22,10 @@ import { serviceTypes } from '../../data/serviceTypes';
 import { workers } from '../../data/workers';
 import { additionalServices } from '../../data/additionalServices';
 
-import CarTypeSelector from '../components/CarTypeSelector';
-import ServiceTypeSelector from '../components/ServiceTypeSelector';
-import AddServiceModal from '../components/AddServiceModal';
-import WorkerList from '../components/WorkerList';
+import CarTypeSelector from '../../src/components/CarTypeSelector';
+import ServiceTypeSelector from '../../src/components/ServiceTypeSelector';
+import AddServiceModal from '../../src/components/AddServiceModal';
+import WorkerList from '../../src/components/WorkerList';
 
 export default function App() {
   const [selectedCarWash, setSelectedCarWash] = useState(null);

@@ -22,7 +22,7 @@ export default function DrawerLayout() {
   const getHeaderTitle = () => {
     if (pathname?.includes('AddCarScreen')) return 'Машин нэмэх';
     if (pathname?.includes('cars')) return 'Миний машинууд';
-    if (pathname?.includes('ProfileScreen')) return 'Хувийн мэдээлэл';
+    if (pathname?.includes('profile')) return 'Хувийн мэдээлэл';
     if (pathname?.includes('index')) return 'Газрын зураг';
     return '';
   };
@@ -79,9 +79,11 @@ export default function DrawerLayout() {
         }}
       />
       <Drawer.Screen
-        name="ProfileScreen"
+        name="profile"
         options={{
           drawerLabel: 'Хувийн мэдээлэл',
+          headerTransparent: false, // ← нэм
+
           drawerIcon: ({ color, size }) => (
             <Ionicons name="person" size={size} color={color} />
           ),

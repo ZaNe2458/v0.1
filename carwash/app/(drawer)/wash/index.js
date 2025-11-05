@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// app/(drawer)/wash/index.js
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,65 +9,62 @@ import {
   StyleSheet,
   ScrollView,
   TextInput,
+  RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { BlurView } from 'expo-blur';
-
-const carWashes = [
-  {
-    id: '1',
-    name: 'Цэвэр Угаалга',
-    location: 'БЗД, 13-р хороолол',
-    rating: 4.5,
-    logo: require('../../assets/logos/shine.jpg'),
-  },
-  {
-    id: '2',
-    name: 'Shine Wash',
-    location: 'СБД, 5-р хороо',
-    rating: 4.7,
-    logo: require('../../assets/logos/shine.jpg'),
-  },
-  {
-    id: '3',
-    name: 'Smart Car Wash',
-    location: 'ХУД, 19-р хороо',
-    rating: 4.3,
-    logo: require('../../assets/logos/shine.jpg'),
-  },
-  {
-    id: '4',
-    name: 'Smart Car Wash',
-    location: 'ХУД, 19-р хороо',
-    rating: 4.3,
-    logo: require('../../assets/logos/shine.jpg'),
-  },
-  {
-    id: '5',
-    name: 'Smart Car Wash',
-    location: 'ХУД, 19-р хороо',
-    rating: 4.3,
-    logo: require('../../assets/logos/shine.jpg'),
-  },
-];
-
-const categories = [
-  { id: 'all', name: 'Бүгд' },
-  { id: '24/7', name: '24/7' },
-  { id: 'best', name: 'Шилдэг' },
-  { id: 'nearby', name: 'Ойр орчим' },
-];
+import { api } from '../../../src/api/client';
+import { API_PATHS } from '../../../src/config/constants';
+import { listCompanies } from '../../../src/api/companies';
 
 export default function CarWashesScreen() {
   const navigation = useNavigation();
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState('');
   const [searchText, setSearchText] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
-  const filteredData = carWashes.filter(
-    (item) =>
-      item.name.toLowerCase().includes(searchText.toLowerCase()) ||
-      item.location.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const fetchCompanies = async () => {
+    try {
+      setError('');
+      const { results } = await listCompanies({ search: searchText }); // ← API layer
+      const mapped = (results ?? []).map((c) => ({
+        id: String(c.id ?? c.pk ?? c.uuid),
+        name: c.name ?? 'Нэргүй',
+        location: c.location ?? c.address ?? '',
+        rating: c.avg_rating ?? c.rating ?? 0,
+        logoUrl: c.logo_url ?? c.logo ?? null,
+      }));
+      setItems(mapped);
+    } catch {
+      setError('Өгөгдөл татах үед алдаа гарлаа.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCompanies();
+  }, []);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchCompanies();
+  }, []);
+
+  const filteredData = useMemo(() => {
+    const q = searchText.trim().toLowerCase();
+    if (!q) return items;
+    return items.filter(
+      (it) =>
+        it.name.toLowerCase().includes(q) ||
+        (it.location || '').toLowerCase().includes(q)
+    );
+  }, [items, searchText]);
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
@@ -76,18 +74,46 @@ export default function CarWashesScreen() {
       }
     >
       <BlurView intensity={80} tint="light" style={styles.card}>
-        <Image source={item.logo} style={styles.logo} />
+        <Image
+          source={
+            item.logoUrl
+              ? { uri: item.logoUrl }
+              : require('../../../src/assets/logos/shine.jpg')
+          }
+          style={styles.logo}
+        />
         <View style={styles.textContainer}>
           <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.location}>{item.location}</Text>
-          <Text style={styles.rating}>⭐ {item.rating}</Text>
+          <Text style={styles.location}>
+            {item.location || 'Байршил мэдээлэлгүй'}
+          </Text>
+          <Text style={styles.rating}>
+            ⭐ {item.rating?.toFixed ? item.rating.toFixed(1) : item.rating}
+          </Text>
         </View>
       </BlurView>
     </TouchableOpacity>
   );
 
+  if (loading) {
+    return (
+      <View style={[styles.container, { alignItems: 'center' }]}>
+        <ActivityIndicator />
+        <Text style={{ marginTop: 8, color: '#64748B' }}>Ачаалж байна…</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
+      {!!error && (
+        <TouchableOpacity onPress={fetchCompanies}>
+          <Text style={{ color: '#ef4444', marginBottom: 8 }}>
+            {error} — Дахин оролдох
+          </Text>
+        </TouchableOpacity>
+      )}
+
       <TextInput
         style={styles.searchInput}
         placeholder="Хайх..."
@@ -100,7 +126,12 @@ export default function CarWashesScreen() {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.categoryContainer}
       >
-        {categories.map((cat) => (
+        {[
+          { id: 'all', name: 'Бүгд' },
+          { id: '24/7', name: '24/7' },
+          { id: 'best', name: 'Шилдэг' },
+          { id: 'nearby', name: 'Ойр орчим' },
+        ].map((cat) => (
           <TouchableOpacity
             key={cat.id}
             style={[
@@ -125,6 +156,12 @@ export default function CarWashesScreen() {
         data={filteredData}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        ListEmptyComponent={
+          <Text style={{ padding: 16, color: '#64748B' }}>Мэдээлэл алга</Text>
+        }
         contentContainerStyle={{ paddingBottom: 16 }}
       />
     </View>
@@ -138,7 +175,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#e6eaf0',
     paddingTop: 100,
   },
-
   searchInput: {
     backgroundColor: '#fff',
     borderRadius: 20,
@@ -152,7 +188,6 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
   },
-
   categoryContainer: {
     flexDirection: 'row',
     marginBottom: 0,
@@ -177,12 +212,7 @@ const styles = StyleSheet.create({
   activeCategoryButton: { backgroundColor: '#007bff' },
   categoryText: { color: '#333', fontWeight: '600', fontSize: 14 },
   activeCategoryText: { color: '#fff' },
-
-  cardWrapper: {
-    marginBottom: 16,
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
+  cardWrapper: { marginBottom: 16, borderRadius: 16, overflow: 'hidden' },
   card: {
     flexDirection: 'row',
     padding: 16,

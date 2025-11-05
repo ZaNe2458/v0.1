@@ -1,4 +1,5 @@
-import React from 'react';
+// app/(drawer)/wash/CarWashDetail.js
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,65 +7,123 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
-
-const carWashes = [
-  {
-    id: '1',
-    name: 'Цэвэр Угаалга',
-    location: 'БЗД, 13-р хороолол',
-    rating: 4.5,
-    logo: require('../../assets/logos/shine.jpg'),
-  },
-  {
-    id: '2',
-    name: 'Shine Wash',
-    location: 'СБД, 5-р хороо',
-    rating: 4.7,
-    logo: require('../../assets/logos/shine.jpg'),
-  },
-  {
-    id: '3',
-    name: 'Smart Car Wash',
-    location: 'ХУД, 19-р хороо',
-    rating: 4.3,
-    logo: require('../../assets/logos/shine.jpg'),
-  },
-];
+import { api } from '../../../src/api/client';
+import { API_PATHS } from '../../../src/config/constants';
+import { getCompany } from '../../../src/api/companies';
 
 export default function CarWashDetailScreen() {
   const route = useRoute();
   const navigation = useNavigation();
-  const { carWashId } = route.params;
+  const { carWashId } = route.params || {};
 
-  const carWash = carWashes.find((c) => c.id === carWashId);
+  const [item, setItem] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  if (!carWash) return <Text>Угаалгын газар олдсонгүй</Text>;
+  const [logoFailed, setLogoFailed] = useState(false);
+
+  const fetchCompany = useCallback(async () => {
+    try {
+      setError('');
+      setLoading(true);
+      const data = await getCompany(carWashId); // ← API layer
+      setItem({
+        id: String(data.id),
+        name: data.name,
+        location: data.location ?? data.address ?? '',
+        rating: data.avg_rating ?? data.rating ?? 0,
+        logoUrl: data.logo_url ?? data.logo ?? null,
+        description: data.description ?? '',
+      });
+    } catch {
+      setError('Өгөгдөл татах үед алдаа гарлаа.');
+      setItem(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [carWashId]);
+
+  useEffect(() => {
+    fetchCompany();
+  }, [fetchCompany]);
+
+  if (loading) {
+    return (
+      <View
+        style={{ flex: 1, padding: 16, paddingTop: 60, alignItems: 'center' }}
+      >
+        <ActivityIndicator />
+        <Text style={{ marginTop: 8, color: '#64748B' }}>Ачаалж байна…</Text>
+      </View>
+    );
+  }
+
+  if (!item) {
+    return (
+      <View style={{ flex: 1, padding: 16, paddingTop: 60 }}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Text
+            style={{ color: '#5c6bc0', fontWeight: 'bold', marginBottom: 12 }}
+          >
+            ← Буцах
+          </Text>
+        </TouchableOpacity>
+        <Text style={{ marginBottom: 12 }}>
+          {error || 'Угаалгын газар олдсонгүй'}
+        </Text>
+        <TouchableOpacity style={styles.button} onPress={fetchCompany}>
+          <Text style={styles.buttonText}>Дахин оролдох</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  const mainImgSource =
+    !logoFailed && item.logoUrl
+      ? { uri: item.logoUrl }
+      : require('../../../src/assets/logos/shine.jpg');
 
   return (
     <ScrollView style={styles.container}>
-      <TouchableOpacity style={styles.backBtn}>
+      <TouchableOpacity
+        style={styles.backBtn}
+        onPress={() => navigation.goBack()}
+      >
         <Text style={{ color: '#5c6bc0', fontWeight: 'bold' }}>← Буцах</Text>
       </TouchableOpacity>
 
-      <Image source={carWash.logo} style={styles.mainImage} />
+      <Image
+        source={mainImgSource}
+        onError={() => setLogoFailed(true)}
+        style={styles.mainImage}
+      />
 
       <View style={styles.headerContainer}>
-        <Image source={carWash.logo} style={styles.logo} />
+        <Image
+          source={mainImgSource}
+          onError={() => setLogoFailed(true)}
+          style={styles.logo}
+        />
         <View style={styles.titleContainer}>
-          <Text style={styles.name}>{carWash.name}</Text>
-          <Text style={styles.location}>{carWash.location}</Text>
+          <Text style={styles.name}>{item.name}</Text>
+          <Text style={styles.location}>
+            {item.location || 'Байршил мэдээлэлгүй'}
+          </Text>
         </View>
       </View>
 
       <View style={styles.ratingContainer}>
-        <Text style={styles.rating}>⭐ Үнэлгээ: {carWash.rating}</Text>
+        <Text style={styles.rating}>
+          ⭐ Үнэлгээ:{' '}
+          {item.rating?.toFixed ? item.rating.toFixed(1) : item.rating}
+        </Text>
       </View>
 
       <Text style={styles.description}>
-        Манай авто угаалга нь хамгийн сүүлийн үеийн тоног төхөөрөмжөөр
-        тоноглогдсон бөгөөд таны машинд мэргэжлийн цэвэрлэгээ үйлчилгээ үзүүлнэ.
+        {item.description || 'Тайлбар байхгүй.'}
       </Text>
 
       <TouchableOpacity style={styles.button}>
@@ -75,9 +134,7 @@ export default function CarWashDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  backBtn: {
-    marginBottom: 20,
-  },
+  backBtn: { marginBottom: 20 },
   container: { flex: 1, padding: 16, paddingTop: 60 },
   mainImage: { width: '100%', height: 200, borderRadius: 16, marginBottom: 16 },
   headerContainer: {

@@ -16,14 +16,14 @@ export default function CarsScreen() {
       plate: '2111-УБА',
       type: 'Жижиг тэрэг',
       model: 'Prius 30',
-      image: require('../../assets/images/sedan.png'),
+      image: require('../../../src/assets/images/sedan.png'),
     },
     {
       id: 2,
       plate: '1111-УБА',
       type: 'Том оврын жийп',
       model: 'Land Cruiser 300',
-      image: require('../../assets/images/jeep_b.png'),
+      image: require('../../../src/assets/images/jeep_b.png'),
     },
   ]);
 

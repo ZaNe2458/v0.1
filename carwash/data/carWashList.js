@@ -9,8 +9,8 @@ export const carWashList = [
     address: 'District Bayanzurkh, UB tower office, Ulaanbaatar',
     hours: '08:00 - 23:00',
     images: [
-      require('../assets/logos/shine.jpg'),
-      require('../assets/logos/shine.jpg'),
+      require('../src/assets/logos/shine.jpg'),
+      require('../src/assets/logos/shine.jpg'),
     ],
   },
   {
@@ -23,8 +23,8 @@ export const carWashList = [
     address: 'Khan-Uul District, Peace Avenue, Ulaanbaatar',
     hours: '07:00 - 22:00',
     images: [
-      require('../assets/logos/shine.jpg'),
-      require('../assets/logos/shine.jpg'),
+      require('../src/assets/logos/shine.jpg'),
+      require('../src/assets/logos/shine.jpg'),
     ],
   },
 ];

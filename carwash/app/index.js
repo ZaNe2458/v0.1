@@ -6,14 +6,21 @@ import {
   StyleSheet,
   TouchableOpacity,
   ImageBackground,
+  Alert,
 } from 'react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import Checkbox from 'expo-checkbox';
 import { Feather } from '@expo/vector-icons';
-import { loginUser, registerUser } from '../data/auth';
+import { loginUser, registerUser } from '../src/api/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Alert } from 'react-native';
+
+const STORAGE = {
+  REMEMBER_ME: 'remember_me',
+  AUTH_TOKEN: 'auth_token',
+  USERNAME: 'username',
+  RECENT_USERS: 'recent_usernames',
+};
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -24,18 +31,68 @@ export default function LoginScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isWasher, setIsWasher] = useState(false);
   const [isRemembered, setIsRemembered] = useState(false);
+
+  // Апп асахад хадгалсан remember & token шалгаж автоматаар оруулна
+  useEffect(() => {
+    (async () => {
+      try {
+        const [remember, token, savedUsername] = await AsyncStorage.multiGet([
+          STORAGE.REMEMBER_ME,
+          STORAGE.AUTH_TOKEN,
+          STORAGE.USERNAME,
+        ]).then((pairs) => pairs.map((p) => p[1]));
+        if (remember === 'true') setIsRemembered(true);
+        if (savedUsername) setUsername(savedUsername);
+        if (remember === 'true' && token) {
+          router.replace('/(drawer)');
+        }
+      } catch (e) {}
+    })();
+  }, []);
+
+  const saveRecentUser = async (name) => {
+    try {
+      const raw = await AsyncStorage.getItem(STORAGE.RECENT_USERS);
+      const list = raw ? JSON.parse(raw) : [];
+      const next = [name, ...list.filter((n) => n !== name)].slice(0, 5);
+      await AsyncStorage.setItem(STORAGE.RECENT_USERS, JSON.stringify(next));
+    } catch (e) {
+      console.log('Error saving user:', e);
+    }
+  };
+
+  const clearRemembered = async () => {
+    try {
+      await AsyncStorage.multiRemove([
+        STORAGE.REMEMBER_ME,
+        STORAGE.AUTH_TOKEN,
+        STORAGE.USERNAME,
+      ]);
+    } catch {}
+  };
 
   const handleLogin = async () => {
     if (!username || !password || (!isLogin && !confirmPassword)) {
       Alert.alert('Анхаар', 'Бүх шаардлагатай талбарыг бөглөнө үү!');
       return;
     }
+
     if (isLogin) {
       try {
         const data = await loginUser(username, password);
-        if (data.data.access) {
+        if (data?.data?.access) {
+          // Сануулах идэвхтэй бол локалд хадгална
+          if (isRemembered) {
+            await AsyncStorage.multiSet([
+              [STORAGE.REMEMBER_ME, 'true'],
+              [STORAGE.AUTH_TOKEN, data.data.access],
+              [STORAGE.USERNAME, username],
+            ]);
+          } else {
+            await clearRemembered();
+          }
+          await saveRecentUser(username);
           router.replace('/(drawer)');
         } else {
           Alert.alert('Алдаа', 'Нэвтрэхэд асуудал гарлаа.');
@@ -61,9 +118,11 @@ export default function LoginScreen() {
 
       try {
         const result = await registerUser(newUser);
-        if (result.status === 'success') {
+        if (result?.status === 'success') {
           Alert.alert('Амжилттай', 'Бүртгэл үүсгэлээ!');
           setIsLogin(true);
+          // Шинэ хэрэглэгчийг локалын жагсаалтад нэмнэ
+          await saveRecentUser(username);
         } else {
           Alert.alert('Алдаа', 'Бүртгэл амжилтгүй боллоо.');
         }
@@ -75,7 +134,7 @@ export default function LoginScreen() {
 
   return (
     <ImageBackground
-      source={require('../assets/images/start.avif')}
+      source={require('../src/assets/images/start.avif')}
       style={styles.background}
       resizeMode="cover"
     >
@@ -142,7 +201,10 @@ export default function LoginScreen() {
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Checkbox
                   value={isRemembered}
-                  onValueChange={setIsRemembered}
+                  onValueChange={(v) => {
+                    setIsRemembered(v);
+                    if (!v) clearRemembered();
+                  }}
                 />
                 <Text style={{ marginLeft: 8, fontSize: 12 }}>Сануулах</Text>
               </View>
@@ -179,16 +241,6 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
           )}
-
-          {!isLogin && (
-            <View style={styles.checkboxContainer}>
-              <Checkbox value={isWasher} onValueChange={setIsWasher} />
-              <Text style={{ marginLeft: 8, fontSize: 12 }}>
-                Угаагчаар бүртгүүлэх
-              </Text>
-            </View>
-          )}
-
           <Pressable onPress={handleLogin} style={styles.button}>
             <Text style={styles.buttonText}>
               {isLogin ? 'Нэвтрэх' : 'Бүртгүүлэх'}
