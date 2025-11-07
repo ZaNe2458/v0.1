@@ -4,7 +4,7 @@ export default function CarsLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
-      <Stack.Screen name="AddCarScreen" />
+      <Stack.Screen name="add" />
     </Stack>
   );
 }

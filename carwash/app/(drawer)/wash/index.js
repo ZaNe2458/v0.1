@@ -69,9 +69,7 @@ export default function CarWashesScreen() {
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.cardWrapper}
-      onPress={() =>
-        navigation.navigate('CarWashDetail', { carWashId: item.id })
-      }
+      onPress={() => navigation.navigate('detail', { carWashId: item.id })}
     >
       <BlurView intensity={80} tint="light" style={styles.card}>
         <Image

@@ -56,7 +56,7 @@ export default function CarsScreen() {
       />
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => router.push('/(drawer)/cars/AddCarScreen')}
+        onPress={() => router.push('/(drawer)/cars/add')}
       >
         <Text style={styles.addText}>➕ Машин нэмэх</Text>
       </TouchableOpacity>

@@ -33,7 +33,6 @@ export default function LoginScreen() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isRemembered, setIsRemembered] = useState(false);
 
-  // Апп асахад хадгалсан remember & token шалгаж автоматаар оруулна
   useEffect(() => {
     (async () => {
       try {
@@ -82,7 +81,6 @@ export default function LoginScreen() {
       try {
         const data = await loginUser(username, password);
         if (data?.data?.access) {
-          // Сануулах идэвхтэй бол локалд хадгална
           if (isRemembered) {
             await AsyncStorage.multiSet([
               [STORAGE.REMEMBER_ME, 'true'],
@@ -121,7 +119,6 @@ export default function LoginScreen() {
         if (result?.status === 'success') {
           Alert.alert('Амжилттай', 'Бүртгэл үүсгэлээ!');
           setIsLogin(true);
-          // Шинэ хэрэглэгчийг локалын жагсаалтад нэмнэ
           await saveRecentUser(username);
         } else {
           Alert.alert('Алдаа', 'Бүртгэл амжилтгүй боллоо.');

@@ -11,13 +11,12 @@ let refreshingPromise = null; // single-flight lock
 
 async function logoutAndThrow() {
   await AsyncStorage.multiRemove([STORAGE.ACCESS, STORAGE.REFRESH]);
-  // Энэ мөрийг төслийнхөө login замд тааруул
-  // Жишээ: expo-router ашиглавал: import { router } ... router.replace('/auth')
-  throw new Error('UNAUTHORIZED'); // дуудаж буй тал нь хэрэгцээндээ тааруулж барина
+
+  throw new Error('UNAUTHORIZED');
 }
 
 async function refreshToken() {
-  if (refreshingPromise) return refreshingPromise; // явж байгааг дахин ашиглах
+  if (refreshingPromise) return refreshingPromise;
   refreshingPromise = (async () => {
     const refresh = await AsyncStorage.getItem(STORAGE.REFRESH);
     if (!refresh) throw new Error('NO_REFRESH');
@@ -46,14 +45,13 @@ async function refreshToken() {
 }
 
 function resolveUrl(path) {
-  if (!path) return BASE_URL; // defensive
+  if (!path) return BASE_URL;
   if (path.startsWith('http://') || path.startsWith('https://')) return path;
   return `${BASE_URL}${path}`;
 }
 
 function buildHeaders(token, extraHeaders, body) {
   const headers = { ...(extraHeaders || {}) };
-  // FormData үед Content-Type-ийг fetch өөрөө тогтооно
   const isFormData =
     typeof FormData !== 'undefined' && body instanceof FormData;
   if (!isFormData && !headers['Content-Type']) {
@@ -87,7 +85,6 @@ export async function api(path, opts = {}) {
   }
   cancel();
 
-  // 401 → refresh → retry
   if (res.status === 401) {
     try {
       const newToken = await refreshToken();
@@ -118,9 +115,7 @@ export async function apiJson(path, opts = {}) {
   let data = null;
   try {
     data = await res.json();
-  } catch {
-    // хоосон body
-  }
+  } catch {}
 
   if (!ok) {
     const detail =
@@ -137,7 +132,6 @@ export async function apiJson(path, opts = {}) {
   return { data, status, ok };
 }
 
-/** Туслах GET/POST богино функцууд */
 export const get = (path, params) => {
   const url =
     params && Object.keys(params).length

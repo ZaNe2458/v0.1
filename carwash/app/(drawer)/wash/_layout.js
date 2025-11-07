@@ -5,7 +5,7 @@ export default function WashLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
-      <Stack.Screen name="CarWashDetail" /> {/* ← нэрээ нэг мөр */}
+      <Stack.Screen name="detail" />
     </Stack>
   );
 }

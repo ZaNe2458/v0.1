@@ -1,3 +1,4 @@
+// carwash/src/components/AddServiceModal.js
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity, ScrollView } from 'react-native';
 

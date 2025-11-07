@@ -29,7 +29,7 @@ export default function CarWashDetailScreen() {
     try {
       setError('');
       setLoading(true);
-      const data = await getCompany(carWashId); // ← API layer
+      const data = await getCompany(carWashId);
       setItem({
         id: String(data.id),
         name: data.name,
