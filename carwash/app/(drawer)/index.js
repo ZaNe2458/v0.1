@@ -1,4 +1,11 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+// app/(drawer)/index.js
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useCallback,
+} from 'react';
 import {
   View,
   Modal,
@@ -9,9 +16,13 @@ import {
   Image,
   StyleSheet,
   ActivityIndicator,
+  Alert,
+  Pressable,
+  Platform,
 } from 'react-native';
-
 import MapView, { Marker } from 'react-native-maps';
+import DateTimePicker from '@react-native-community/datetimepicker';
+
 import carTypes from '../../data/carTypes';
 import WorkerList from '../../src/components/WorkerList';
 import CarTypeSelector from '../../src/components/CarTypeSelector';
@@ -22,6 +33,7 @@ import ConfirmBookingModal from '../../src/components/ConfirmBookingModal';
 import { listCompanies } from '../../src/api/companies';
 import { listServices } from '../../src/api/services';
 import { listEmployees } from '../../src/api/employees';
+import { createBooking } from '../../src/api/bookings'; // ⬅️ нэмсэн
 
 const UB_COORD = {
   latitude: 47.9185,
@@ -43,6 +55,7 @@ export default function BookingMapScreen() {
   const [serviceCards, setServiceCards] = useState([]);
   const [servicesRaw, setServicesRaw] = useState([]);
   const [loadingServices, setLoadingServices] = useState(false);
+  const [confirmVisible, setConfirmVisible] = useState(false);
 
   const [workers, setWorkers] = useState([]);
   const [loadingWorkers, setLoadingWorkers] = useState(false);
@@ -52,11 +65,16 @@ export default function BookingMapScreen() {
   const [addServiceModalVisible, setAddServiceModalVisible] = useState(false);
   const [checkedServices, setCheckedServices] = useState({});
   const [selectedWorker, setSelectedWorker] = useState(null);
-  const [confirmVisible, setConfirmVisible] = useState(false);
+
+  const [showPicker, setShowPicker] = useState(false);
+  const [bookingDate, setBookingDate] = useState(new Date());
+  const [selectedTime, setSelectedTime] = useState(null);
+
+  const [bookingLoading, setBookingLoading] = useState(false);
 
   const fmt = (n) => new Intl.NumberFormat('mn-MN').format(Number(n || 0));
   const pickIcon = (name = '') => {
-    const n = name.toLowerCase();
+    const n = (name || '').toLowerCase();
     if (/(premium|lux|full|бүрэн)/.test(n)) return '✨';
     if (/(express|fast|түргэн)/.test(n)) return '⚡';
     if (/(interior|дотор)/.test(n)) return '🧽';
@@ -67,7 +85,34 @@ export default function BookingMapScreen() {
 
   const cacheRef = useRef({ services: new Map(), employees: new Map() });
 
-  // Map
+  const generateSlots = useCallback((start = 9, end = 20, stepMin = 30) => {
+    const slots = [];
+    for (let h = start; h <= end; h++) {
+      for (let m = 0; m < 60; m += stepMin) {
+        if (h === end && m > 0) continue;
+        const hh = String(h).padStart(2, '0');
+        const mm = String(m).padStart(2, '0');
+        slots.push(`${hh}:${mm}`);
+      }
+    }
+    return slots;
+  }, []);
+
+  const timeSlots = useMemo(() => generateSlots(), [generateSlots]);
+
+  const getBookingAt = useCallback(() => {
+    if (!selectedTime) return null;
+    const [hh, mm] = selectedTime.split(':').map(Number);
+    const d = new Date(bookingDate);
+    d.setHours(hh, mm, 0, 0);
+    return d;
+  }, [bookingDate, selectedTime]);
+
+  const bookingAt = getBookingAt();
+  const workerId =
+    typeof selectedWorker === 'object' ? selectedWorker?.id : selectedWorker;
+  const canBook = !!(activeServiceId && workerId && bookingAt);
+
   const fetchCompanies = useCallback(async () => {
     try {
       setError('');
@@ -86,7 +131,6 @@ export default function BookingMapScreen() {
           hours: c.hours ?? c.open_hours ?? '',
         }))
         .filter((x) => x.latitude && x.longitude);
-
       setCompanies(normalized);
 
       if (normalized.length && mapRef.current) {
@@ -116,68 +160,96 @@ export default function BookingMapScreen() {
   useEffect(() => {
     if (!selectedCompany?.id) return;
 
-    const companyId = selectedCompany.id;
+    const companyId = String(selectedCompany.id);
+    let cancelled = false;
 
     setServiceCards([]);
     setServicesRaw([]);
     setActiveServiceId(null);
     setWorkers([]);
     setCheckedServices({});
+    setSelectedWorker(null);
     setLoadingServices(true);
     setLoadingWorkers(true);
 
-    let cancelled = false;
-
-    const loadServices = async () => {
-      const cached = cacheRef.current.services.get(companyId);
-      if (cached) {
-        if (!cancelled) applyServices(cached);
-      } else {
-        const data = await listServices({ company: companyId });
-        if (!cancelled) {
-          cacheRef.current.services.set(companyId, data ?? []);
-          applyServices(data ?? []);
-        }
-      }
-      if (!cancelled) setLoadingServices(false);
-    };
-
-    const loadEmployees = async () => {
-      const cachedEmp = cacheRef.current.employees.get(companyId);
-      if (cachedEmp) {
-        if (!cancelled) setWorkers(cachedEmp);
-      } else {
-        const emp = await listEmployees({ company: companyId });
-        if (!cancelled) {
-          cacheRef.current.employees.set(companyId, emp ?? []);
-          setWorkers(emp ?? []);
-        }
-      }
-      if (!cancelled) setLoadingWorkers(false);
-    };
-
-    const applyServices = (all) => {
+    const applyServices = (all = []) => {
       const normalized = (all ?? [])
+        .filter((s) => {
+          const cid = String(s.company_id ?? s.company?.id ?? s.company);
+          return cid === companyId;
+        })
         .filter((s) => s?.is_active !== false)
         .map((s) => ({
           id: String(s.id),
-          name: s.name,
+          name: s.name || s.title || 'Үйлчилгээ',
           description: s.description ?? '',
-          price: Number(s.price) || 0,
-          duration: s.duration ?? '',
+          price: Number(s.price ?? s.base_price ?? 0),
+          duration: s.duration ?? s.minutes ?? '',
         }));
 
       setServicesRaw(normalized);
 
       const cards = normalized.map((s) => ({
         id: s.id,
-        name: s.name?.toUpperCase() || 'SERVICE',
+        name: (s.name || 'SERVICE').toUpperCase(),
         icon: pickIcon(s.name),
         description: s.description || 'Үйлчилгээ',
         price: `₮ ${fmt(s.price)}`,
       }));
       setServiceCards(cards);
       if (cards.length) setActiveServiceId(cards[0].id);
+    };
+
+    const loadServices = async () => {
+      try {
+        const cached = cacheRef.current.services.get(companyId);
+        if (cached) {
+          if (!cancelled) applyServices(cached);
+        } else {
+          const data = await listServices({ company: companyId });
+          const list = Array.isArray(data) ? data : (data?.results ?? []);
+          cacheRef.current.services.set(companyId, list);
+          if (!cancelled) applyServices(list);
+        }
+      } finally {
+        if (!cancelled) setLoadingServices(false);
+      }
+    };
+
+    const loadEmployees = async () => {
+      try {
+        const cachedEmp = cacheRef.current.employees.get(companyId);
+        if (cachedEmp) {
+          if (!cancelled) setWorkers(cachedEmp);
+        } else {
+          const emp = await listEmployees({ company: companyId });
+          const filtered = (emp ?? []).filter((e) => {
+            const cid = String(e.company_id ?? e.company?.id ?? e.company);
+            return cid === companyId;
+          });
+          const mapped = filtered.map((e) => {
+            const fullName =
+              e.full_name ||
+              [e.first_name, e.last_name].filter(Boolean).join(' ') ||
+              e.name ||
+              e.username ||
+              'Ажилтан';
+            return {
+              id: String(e.id),
+              name: fullName,
+              fullName,
+              role: e.role || e.position || 'Угаагч',
+              rating: Number(e.rating ?? e.score ?? 0),
+              phone: e.phone || e.contact_phone || '',
+              avatarUrl: e.avatar_url || e.avatar || null,
+            };
+          });
+          cacheRef.current.employees.set(companyId, mapped);
+          if (!cancelled) setWorkers(mapped);
+        }
+      } finally {
+        if (!cancelled) setLoadingWorkers(false);
+      }
     };
 
     loadServices().catch(() => !cancelled && setLoadingServices(false));
@@ -188,6 +260,7 @@ export default function BookingMapScreen() {
     };
   }, [selectedCompany?.id]);
 
+  // handlers
   const handleMarkerPress = (company) => {
     setSelectedCompany(company);
     setModalVisible(true);
@@ -200,6 +273,7 @@ export default function BookingMapScreen() {
     setWorkers([]);
     setActiveServiceId(null);
     setCheckedServices({});
+    setSelectedWorker(null);
   };
 
   return (
@@ -360,23 +434,140 @@ export default function BookingMapScreen() {
                   </Text>
                 )}
 
-                <TouchableOpacity
-                  style={styles.bookBtn}
-                  onPress={() => setConfirmVisible(true)}
-                  disabled={!activeServiceId}
-                >
-                  <Text style={styles.bookText}>Захиалга баталгаажуулах</Text>
-                </TouchableOpacity>
+                <Text style={[styles.section, { marginTop: 12 }]}>
+                  Цаг захиалах
+                </Text>
 
-                <ConfirmBookingModal
-                  visible={confirmVisible}
-                  onClose={() => setConfirmVisible(false)}
-                  selectedCarType={selectedCarType}
-                  activeServiceType={activeServiceId}
-                  checkedServices={checkedServices}
-                  additionalServices={[]}
-                  selectedWorker={selectedWorker}
-                />
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 8,
+                    marginBottom: 8,
+                  }}
+                >
+                  <Pressable
+                    onPress={() => setShowPicker(true)}
+                    hitSlop={10}
+                    style={{
+                      alignSelf: 'flex-start',
+                      backgroundColor: '#EAEAFF',
+                      paddingHorizontal: 14,
+                      paddingVertical: 10,
+                      borderRadius: 12,
+                      marginBottom: 12,
+                    }}
+                  >
+                    <Text style={{ fontWeight: '700', color: '#3730A3' }}>
+                      {new Date(bookingDate)
+                        .toISOString()
+                        .slice(0, 10)
+                        .replaceAll('-', '.')}
+                    </Text>
+                  </Pressable>
+
+                  {!!selectedTime && (
+                    <View
+                      style={{
+                        paddingVertical: 8,
+                        paddingHorizontal: 12,
+                        backgroundColor: '#E0F2FE',
+                        borderRadius: 10,
+                      }}
+                    >
+                      <Text style={{ fontWeight: '600', color: '#0e7490' }}>
+                        {selectedTime}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+
+                {showPicker && (
+                  <DateTimePicker
+                    value={bookingDate}
+                    mode="date"
+                    display={Platform.OS === 'ios' ? 'inline' : 'default'}
+                    onChange={(event, selectedDate) => {
+                      if (Platform.OS === 'android') {
+                        if (event.type === 'dismissed') {
+                          setShowPicker(false);
+                          return;
+                        }
+                        setShowPicker(false);
+                      }
+                      if (selectedDate) setBookingDate(selectedDate);
+                    }}
+                  />
+                )}
+
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ paddingVertical: 6 }}
+                >
+                  {timeSlots.map((t) => {
+                    const active = selectedTime === t;
+                    return (
+                      <TouchableOpacity
+                        key={t}
+                        onPress={() => setSelectedTime(t)}
+                        style={{
+                          paddingVertical: 8,
+                          paddingHorizontal: 12,
+                          borderRadius: 999,
+                          marginRight: 8,
+                          borderWidth: 1,
+                          borderColor: active ? '#2563EB' : '#e5e7eb',
+                          backgroundColor: active ? '#dbeafe' : '#fff',
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: active ? '#1d4ed8' : '#111827',
+                            fontWeight: '600',
+                          }}
+                        >
+                          {t}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </ScrollView>
+
+                <TouchableOpacity
+                  style={[
+                    styles.bookBtn,
+                    { opacity: canBook && !bookingLoading ? 1 : 0.6 },
+                  ]}
+                  disabled={!canBook || bookingLoading}
+                  onPress={async () => {
+                    try {
+                      if (!canBook) return;
+                      setBookingLoading(true);
+                      const iso = new Date(bookingAt).toISOString();
+                      const payload = {
+                        service: Number(activeServiceId),
+                        employee: Number(workerId),
+                        booking_time: iso,
+                        notes: '',
+                      };
+                      await createBooking(payload);
+                      Alert.alert('Амжилттай', 'Захиалга үүслээ.');
+                      setConfirmVisible(false);
+                      setModalVisible(false);
+                    } catch (e) {
+                      Alert.alert('Алдаа', e.message || 'Серверийн алдаа.');
+                    } finally {
+                      setBookingLoading(false);
+                    }
+                  }}
+                >
+                  <Text style={styles.bookText}>
+                    {bookingLoading
+                      ? 'Илгээж байна…'
+                      : 'Захиалга баталгаажуулах'}
+                  </Text>
+                </TouchableOpacity>
               </ScrollView>
             )}
           </View>
@@ -419,6 +610,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     marginVertical: 20,
+    opacity: 1,
   },
   bookText: { color: 'white', fontWeight: '600' },
 });

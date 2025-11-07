@@ -108,7 +108,7 @@ export default function LoginScreen() {
         username: username,
         email: `${username}@carwash.mn`,
         password: password,
-        first_name: 'Хэрэглэгч',
+        first_name: '${username}',
         last_name: 'Шинэ',
         phone: phone,
         address: 'Улаанбаатар',

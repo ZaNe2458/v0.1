@@ -30,7 +30,7 @@ export default function CarWashesScreen() {
   const fetchCompanies = async () => {
     try {
       setError('');
-      const { results } = await listCompanies({ search: searchText }); // ← API layer
+      const { results } = await listCompanies({ search: searchText });
       const mapped = (results ?? []).map((c) => ({
         id: String(c.id ?? c.pk ?? c.uuid),
         name: c.name ?? 'Нэргүй',
