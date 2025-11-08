@@ -1,0 +1,106 @@
+import { StyleSheet } from 'react-native';
+
+export const styles = StyleSheet.create({
+  errorPill: {
+    backgroundColor: '#fee2e2',
+    color: '#b91c1c',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '85%',
+    minHeight: '70%',
+  },
+  header: { flexDirection: 'row', marginBottom: 20 },
+  title: { fontSize: 20, fontWeight: '700' },
+  detail: { color: '#555', fontSize: 14 },
+  logo: { width: 90, height: 90, borderRadius: 10 },
+  section: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
+
+  slotCard: {
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    padding: 14,
+    marginTop: 6,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+
+  calHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  calHeaderTitle: { fontSize: 14, fontWeight: '700', color: '#111827' },
+  navArrow: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#2563EB',
+    paddingHorizontal: 8,
+  },
+
+  weekRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
+  weekLabel: { flex: 1, textAlign: 'center', fontSize: 13, fontWeight: '600' },
+  gridRow: { flexDirection: 'row', alignItems: 'center' },
+  dayCellPad: { width: '14.2857%', aspectRatio: 1 },
+  dayCell: {
+    width: '14.2857%',
+    aspectRatio: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    marginBottom: 6,
+  },
+  dayCellActive: { backgroundColor: '#2563EB', borderColor: '#2563EB' },
+  dayText: { fontSize: 16, fontWeight: '600', color: '#000' },
+  dayTextActive: { color: '#fff' },
+  slotRow: { paddingVertical: 6 },
+  slotChip: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    backgroundColor: '#fff',
+  },
+  slotChipActive: { backgroundColor: '#dbeafe', borderColor: '#2563EB' },
+  slotChipText: { color: '#000', fontWeight: '600' },
+  slotChipTextActive: { color: '#000', fontWeight: '700' },
+  bookBtn: {
+    backgroundColor: '#007AFF',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  bookText: { color: 'white', fontWeight: '600' },
+  mapTouchZone: {
+    flex: 0.25, // дээд 25% хэсэг — map харагдаж байгаа хэсэг
+    backgroundColor: 'transparent',
+  },
+
+  closeBtn: {
+    position: 'absolute',
+    top: 14,
+    right: 18,
+    zIndex: 10,
+  },
+  closeTxt: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+});
