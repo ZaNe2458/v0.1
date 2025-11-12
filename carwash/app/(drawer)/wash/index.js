@@ -1,4 +1,3 @@
-// app/(drawer)/wash/index.js
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import {
   View,
@@ -12,14 +11,18 @@ import {
   RefreshControl,
   ActivityIndicator,
 } from 'react-native';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { BlurView } from 'expo-blur';
-import { api } from '../../../src/api/client';
-import { API_PATHS } from '../../../src/config/constants';
 import { listCompanies } from '../../../src/api/companies';
 
 export default function CarWashesScreen() {
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
+
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -95,7 +98,12 @@ export default function CarWashesScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.container, { alignItems: 'center' }]}>
+      <View
+        style={[
+          styles.container,
+          { alignItems: 'center', justifyContent: 'center' },
+        ]}
+      >
         <ActivityIndicator />
         <Text style={{ marginTop: 8, color: '#64748B' }}>Ачаалж байна…</Text>
       </View>
@@ -103,7 +111,7 @@ export default function CarWashesScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top + 8 }]}>
       {!!error && (
         <TouchableOpacity onPress={fetchCompanies}>
           <Text style={{ color: '#ef4444', marginBottom: 8 }}>
@@ -162,16 +170,15 @@ export default function CarWashesScreen() {
         }
         contentContainerStyle={{ paddingBottom: 16 }}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
     backgroundColor: '#e6eaf0',
-    paddingTop: 100,
+    paddingHorizontal: 16,
   },
   searchInput: {
     backgroundColor: '#fff',
@@ -188,7 +195,7 @@ const styles = StyleSheet.create({
   },
   categoryContainer: {
     flexDirection: 'row',
-    marginBottom: 0,
+    marginBottom: 8,
     height: 40,
     alignItems: 'center',
     paddingHorizontal: 8,

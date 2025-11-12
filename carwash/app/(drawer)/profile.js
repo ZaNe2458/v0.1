@@ -62,18 +62,15 @@ export default function ProfileScreen() {
         router.replace('/login');
         return;
       }
+      console.log('ACCESS TOKEN:', access);
 
       const res = await fetch(`${BASE_URL}/api/auth/me/`, {
         headers: { Authorization: `Bearer ${access}` },
       });
-      if (res.status === 401) {
-        router.replace('/login');
-        return;
-      }
-      if (!res.ok) throw new Error('Failed');
+      const json = await res.json();
+      const userData = json?.data ?? json; // ← энд шалгалт
+      const p = mapProfile(userData);
 
-      const data = await res.json();
-      const p = mapProfile(data);
       setFirstName(p.firstName);
       setLastName(p.lastName);
       setPhone(p.phone);

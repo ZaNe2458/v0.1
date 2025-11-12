@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { styles } from './calendar.styles';
+import { styles } from '../styles';
 import { WEEKDAYS, buildMonthCells } from '../../utils/dates';
 
 export default function CalendarWeek({ date, onChange }) {

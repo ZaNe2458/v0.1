@@ -1,3 +1,4 @@
+// carwash/src/hooks/useCompanies.js
 import { useState, useCallback } from 'react';
 import { listCompanies } from '../api/companies';
 

@@ -1,11 +1,8 @@
+// carwash/src/hooks/useCompanyData.js
 import { useState, useCallback, useRef } from 'react';
 import { listServices } from '../api/services';
 import { listEmployees } from '../api/employees';
 
-/**
- * Сонгогдсон компанийн үйлчилгээ болон ажилчдын мэдээллийг татах hook.
- * API-г caching хийдэг тул дахин орсон ч хурдан.
- */
 export function useCompanyData() {
   const [services, setServices] = useState([]);
   const [employees, setEmployees] = useState([]);
@@ -26,6 +23,7 @@ export function useCompanyData() {
       } else {
         const data = await listServices({ company: id });
         const list = Array.isArray(data) ? data : (data?.results ?? []);
+
         const normalized = list.map((s) => ({
           id: String(s.id),
           companyId: String(s.company_id ?? s.company?.id ?? id),
@@ -35,6 +33,7 @@ export function useCompanyData() {
           duration: s.duration ?? s.minutes ?? '',
           isActive: s.is_active !== false,
         }));
+
         cacheRef.current.services.set(id, normalized);
         setServices(normalized);
       }

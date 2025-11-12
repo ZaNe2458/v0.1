@@ -1,3 +1,4 @@
+// carwash/app/(drawer)/_layout.js
 import React from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import { Drawer } from 'expo-router/drawer';
@@ -24,6 +25,7 @@ export default function DrawerLayout() {
     if (pathname?.includes('cars')) return 'Миний машинууд';
     if (pathname?.includes('profile')) return 'Хувийн мэдээлэл';
     if (pathname?.includes('index')) return 'Газрын зураг';
+    if (pathname?.includes('wash')) return 'Угаалгын газрууд';
     return '';
   };
 
@@ -31,13 +33,12 @@ export default function DrawerLayout() {
     <Drawer
       screenOptions={({ navigation }) => ({
         headerLeft: () => {
-          if (
-            pathname.includes('AddCarScreen') ||
-            pathname.includes('CarWashDetail')
-          )
+          if (pathname.includes('cars/add') || pathname.includes('wash/detail'))
             return null;
           return <MenuButton navigation={navigation} />;
         },
+        headerShown: !pathname.includes('wash/detail'),
+        headerShown: !pathname.includes('cars/add'),
         headerTitle: getHeaderTitle(),
         headerTransparent: true,
       })}

@@ -22,7 +22,7 @@ export const styles = StyleSheet.create({
   },
   header: { flexDirection: 'row', marginBottom: 20 },
   title: { fontSize: 20, fontWeight: '700' },
-  detail: { color: '#555', fontSize: 14 },
+  detail: { color: '#555', fontSize: 14, marginTop: 6 },
   logo: { width: 90, height: 90, borderRadius: 10 },
   section: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
 
@@ -88,7 +88,7 @@ export const styles = StyleSheet.create({
   },
   bookText: { color: 'white', fontWeight: '600' },
   mapTouchZone: {
-    flex: 0.25, // дээд 25% хэсэг — map харагдаж байгаа хэсэг
+    flex: 0.25,
     backgroundColor: 'transparent',
   },
 
