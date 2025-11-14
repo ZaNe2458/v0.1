@@ -9,11 +9,12 @@ import {
   Alert,
   StatusBar,
   ActivityIndicator,
+  TextInput,
 } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 
 import MapView, { Marker } from 'react-native-maps';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { Feather } from '@expo/vector-icons';
 
 import { styles } from '../../src/components/styles';
 import CalendarMonth from '../../src/components/calendar/CalendarMonth';
@@ -28,6 +29,8 @@ import { useTimeSlots } from '../../src/hooks/useTimeSlots';
 import { createBooking } from '../../src/api/bookings';
 import { UB_COORD } from '../../src/constants/coords';
 import { fmtPrice } from '../../src/utils/format';
+
+import { BlurView } from 'expo-blur';
 
 export default function BookingMapScreen() {
   const route = useRoute();
@@ -47,6 +50,7 @@ export default function BookingMapScreen() {
   const [selectedTime, setSelectedTime] = useState(null);
   const [showMonth, setShowMonth] = useState(false);
   const [bookingLoading, setBookingLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const canBook = !!(activeServiceId && selectedWorker && selectedTime);
 
@@ -58,10 +62,34 @@ export default function BookingMapScreen() {
     return d;
   }, [bookingDate, selectedTime]);
 
-  const handleMarkerPress = (company) => {
+  const focusCompany = (company, animateMs = 800) => {
+    if (!company?.latitude || !company?.longitude) return;
+    mapRef.current?.animateToRegion(
+      {
+        latitude: company.latitude,
+        longitude: company.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      },
+      animateMs
+    );
+  };
+
+  const openCompanyDetails = (company) => {
     setSelectedCompany(company);
     setModalVisible(true);
     loadCompanyData(company.id);
+  };
+
+  const handleMarkerPress = (company) => {
+    focusCompany(company, 500);
+    openCompanyDetails(company);
+  };
+
+  const handleSearchSelect = (company) => {
+    setSearchQuery(company.name || '');
+    focusCompany(company, 600);
+    openCompanyDetails(company);
   };
 
   const handleCloseModal = () => {
@@ -70,25 +98,33 @@ export default function BookingMapScreen() {
     setSelectedTime(null);
   };
 
-  /** 🔹 Detail screen-ээс ирэх focusCompanyId-г шалгана */
   useEffect(() => {
     if (focusCompanyId && companies.length > 0) {
       const target = companies.find((c) => c.id === String(focusCompanyId));
       if (target) {
-        // Map-ийг тэр координат руу зөөлгөж, modal автоматаар нээх
-        mapRef.current?.animateToRegion(
-          {
-            latitude: target.latitude,
-            longitude: target.longitude,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          },
-          1000
-        );
-        handleMarkerPress(target);
+        focusCompany(target, 1000);
+        openCompanyDetails(target);
       }
     }
   }, [focusCompanyId, companies]);
+
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+
+  const filteredCompanies = useMemo(() => {
+    if (!normalizedQuery) return companies;
+    return companies.filter((c) => {
+      const name = c.name?.toLowerCase() || '';
+      const address = c.address?.toLowerCase() || '';
+      return (
+        name.includes(normalizedQuery) || address.includes(normalizedQuery)
+      );
+    });
+  }, [companies, normalizedQuery]);
+
+  const searchSuggestions = useMemo(() => {
+    if (!normalizedQuery) return [];
+    return filteredCompanies.slice(0, 5);
+  }, [filteredCompanies, normalizedQuery]);
 
   const handleBook = async () => {
     try {
@@ -137,7 +173,10 @@ export default function BookingMapScreen() {
 
   const bookingSummary = [
     { label: 'Угаалгын газар', value: selectedCompany?.name ?? 'Сонгогдоогүй' },
-    { label: 'Машины төрөл', value: selectedCarTypeInfo?.name ?? 'Сонгогдоогүй' },
+    {
+      label: 'Машины төрөл',
+      value: selectedCarTypeInfo?.name ?? 'Сонгогдоогүй',
+    },
     {
       label: 'Үйлчилгээ',
       value: selectedService
@@ -174,14 +213,14 @@ export default function BookingMapScreen() {
           {!!error && (
             <TouchableOpacity
               onPress={refetch}
-              style={{ position: 'absolute', top: 60, left: 16, zIndex: 10 }}
+              style={{ position: 'absolute', top: 140, left: 16, zIndex: 10 }}
             >
               <Text style={styles.errorPill}>{error} (дахин оролдох)</Text>
             </TouchableOpacity>
           )}
 
           <MapView ref={mapRef} style={{ flex: 1 }} initialRegion={UB_COORD}>
-            {companies.map((c) => (
+            {filteredCompanies.map((c) => (
               <Marker
                 key={c.id}
                 coordinate={{ latitude: c.latitude, longitude: c.longitude }}
@@ -191,6 +230,54 @@ export default function BookingMapScreen() {
               />
             ))}
           </MapView>
+          <BlurView pointerEvents="box-none" style={styles.searchWrapper}>
+            <View pointerEvents="box-none">
+              <View style={styles.searchBox}>
+                <Feather name="search" size={18} color="#64748B" />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Угаалгын газар хайх..."
+                  placeholderTextColor="#94A3B8"
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                />
+                {!!searchQuery && (
+                  <TouchableOpacity
+                    onPress={() => setSearchQuery('')}
+                    style={styles.searchClear}
+                  >
+                    <Feather name="x" size={16} color="#94A3B8" />
+                  </TouchableOpacity>
+                )}
+              </View>
+              {normalizedQuery.length > 0 && (
+                <View style={styles.searchSuggestions}>
+                  {searchSuggestions.length ? (
+                    searchSuggestions.map((company) => (
+                      <TouchableOpacity
+                        key={company.id}
+                        style={styles.suggestionItem}
+                        onPress={() => handleSearchSelect(company)}
+                      >
+                        <Text style={styles.suggestionTitle}>
+                          {company.name}
+                        </Text>
+                        {!!company.address && (
+                          <Text style={styles.suggestionSubtitle}>
+                            {company.address}
+                          </Text>
+                        )}
+                      </TouchableOpacity>
+                    ))
+                  ) : (
+                    <Text style={styles.searchEmpty}>
+                      Тохирох газар олдсонгүй
+                    </Text>
+                  )}
+                </View>
+              )}
+            </View>
+          </BlurView>
         </>
       )}
 

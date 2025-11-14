@@ -1,5 +1,5 @@
 // app/profile/profile.js
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -15,15 +15,21 @@ import {
 import { Feather } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 
 import defaultPhoto from '../../src/assets/images/default-avatar.avif';
 import anotherPhoto from '../../src/assets/logos/shine.jpg';
+import {
+  fetchProfile as fetchProfileApi,
+  updateProfile as updateProfileApi,
+  changePassword as changePasswordApi,
+  logoutSession,
+} from '../../src/api/auth';
 
 const STORAGE = {
   AUTH_TOKEN: 'auth_token',
   REFRESH_TOKEN: 'refresh_token',
 };
-const BASE_URL = 'http://20.205.137.59:8000';
 
 function mapProfile(raw) {
   return {
@@ -49,66 +55,70 @@ export default function ProfileScreen() {
   const [newPw2, setNewPw2] = useState('');
   const [pwLoading, setPwLoading] = useState(false);
   const [loadingProfile, setLoadingProfile] = useState(true);
+  const [savingProfile, setSavingProfile] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
   const changeImage = () =>
     setImage((img) => (img === defaultPhoto ? anotherPhoto : defaultPhoto));
 
-  const fetchProfile = async () => {
+  const clearSession = useCallback(async () => {
+    await AsyncStorage.multiRemove([STORAGE.AUTH_TOKEN, STORAGE.REFRESH_TOKEN]);
+  }, []);
+
+  const handleUnauthorized = useCallback(async () => {
+    await clearSession();
+    router.replace('/');
+  }, [clearSession, router]);
+
+  const loadProfile = useCallback(async () => {
     try {
       setLoadingProfile(true);
-      const access = await AsyncStorage.getItem(STORAGE.AUTH_TOKEN);
-      if (!access) {
-        router.replace('/login');
-        return;
-      }
-      console.log('ACCESS TOKEN:', access);
-
-      const res = await fetch(`${BASE_URL}/api/auth/me/`, {
-        headers: { Authorization: `Bearer ${access}` },
-      });
-      const json = await res.json();
-      const userData = json?.data ?? json; // ← энд шалгалт
+      const userData = await fetchProfileApi();
       const p = mapProfile(userData);
-
       setFirstName(p.firstName);
       setLastName(p.lastName);
       setPhone(p.phone);
       setEmail(p.email);
-      if (p.avatar) setImage({ uri: p.avatar });
-    } catch {
-      Alert.alert('Алдаа', 'Профайл мэдээлэл татахад алдаа гарлаа.');
+      if (p.avatar) {
+        setImage({ uri: p.avatar });
+      } else {
+        setImage(defaultPhoto);
+      }
+    } catch (error) {
+      if (error?.status === 401) {
+        await handleUnauthorized();
+      } else {
+        Alert.alert('Алдаа', 'Профайл мэдээлэл татахад алдаа гарлаа.');
+      }
     } finally {
       setLoadingProfile(false);
     }
-  };
+  }, [handleUnauthorized]);
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      loadProfile();
+    }, [loadProfile])
+  );
 
   const saveProfile = async () => {
     try {
-      const access = await AsyncStorage.getItem(STORAGE.AUTH_TOKEN);
-      if (!access) {
-        router.replace('/login');
-        return;
-      }
-
-      const body = { first_name: firstName, last_name: lastName, phone };
-      const res = await fetch(`${BASE_URL}/api/auth/me/`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${access}`,
-        },
-        body: JSON.stringify(body),
+      setSavingProfile(true);
+      await updateProfileApi({
+        first_name: firstName,
+        last_name: lastName,
+        phone,
       });
-      if (!res.ok) throw new Error('Failed');
       Alert.alert('Амжилттай', 'Профайл шинэчлэгдлээ.');
-      fetchProfile();
-    } catch {
-      Alert.alert('Алдаа', 'Профайл шинэчлэхэд алдаа гарлаа.');
+      await loadProfile();
+    } catch (error) {
+      if (error?.status === 401) {
+        await handleUnauthorized();
+      } else {
+        Alert.alert('Алдаа', 'Профайл шинэчлэхэд алдаа гарлаа.');
+      }
+    } finally {
+      setSavingProfile(false);
     }
   };
 
@@ -119,27 +129,18 @@ export default function ProfileScreen() {
       return Alert.alert('Алдаа', 'Нууц үг хоёр талбарт ижил байх ёстой.');
     try {
       setPwLoading(true);
-      const access = await AsyncStorage.getItem(STORAGE.AUTH_TOKEN);
-      if (!access) {
-        router.replace('/login');
-        return;
-      }
-      const res = await fetch(`${BASE_URL}/api/auth/change-password/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${access}`,
-        },
-        body: JSON.stringify({ new_password: newPw }),
-      });
-      if (!res.ok) throw new Error('Failed');
+      await changePasswordApi({ new_password: newPw });
       setMaskedPassword('*'.repeat(newPw.length));
       setPwModal(false);
       setNewPw('');
       setNewPw2('');
       Alert.alert('Амжилттай', 'Нууц үг солигдлоо.');
-    } catch {
-      Alert.alert('Алдаа', 'Нууц үг солих үед алдаа гарлаа.');
+    } catch (error) {
+      if (error?.status === 401) {
+        await handleUnauthorized();
+      } else {
+        Alert.alert('Алдаа', 'Нууц үг солих үед алдаа гарлаа.');
+      }
     } finally {
       setPwLoading(false);
     }
@@ -148,26 +149,25 @@ export default function ProfileScreen() {
   const handleLogout = async () => {
     try {
       setLoggingOut(true);
-      const refresh = (await AsyncStorage.getItem(STORAGE.REFRESH_TOKEN)) ?? '';
-      await fetch(`${BASE_URL}/api/auth/logout/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refresh }),
-      }).catch(() => {});
-      await AsyncStorage.multiRemove([
-        STORAGE.AUTH_TOKEN,
-        STORAGE.REFRESH_TOKEN,
-      ]);
-      router.replace('/login');
-    } catch {
+      const refresh = await AsyncStorage.getItem(STORAGE.REFRESH_TOKEN);
+      await logoutSession(refresh || undefined);
+    } catch (error) {
       Alert.alert('Алдаа', 'Гарах үед асуудал гарлаа.');
     } finally {
+      await clearSession();
+      router.replace('/');
       setLoggingOut(false);
     }
   };
 
   return (
     <ScrollView style={styles.container}>
+      {loadingProfile && (
+        <View style={styles.loadingBanner}>
+          <ActivityIndicator size="small" color="#2563EB" />
+          <Text style={styles.loadingText}>Мэдээлэл ачаалж байна…</Text>
+        </View>
+      )}
       <View style={styles.card}>
         <View style={styles.avatarRow}>
           <TouchableOpacity onPress={changeImage} style={styles.imageWrapper}>
@@ -260,10 +260,14 @@ export default function ProfileScreen() {
           />
         </View>
 
-        <TouchableOpacity style={styles.primaryBtn} onPress={saveProfile}>
+        <TouchableOpacity
+          style={[styles.primaryBtn, savingProfile && { opacity: 0.7 }]}
+          onPress={saveProfile}
+          disabled={savingProfile}
+        >
           <Feather name="save" size={18} color="#fff" />
           <Text style={styles.primaryBtnText}>
-            {loadingProfile ? 'Уншиж байна…' : 'Хадгалах'}
+            {savingProfile ? 'Хадгалж байна…' : 'Хадгалах'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -504,4 +508,18 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   modalOkText: { color: '#fff', fontWeight: '700' },
+  loadingBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: '#dbeafe',
+    borderRadius: 10,
+    marginBottom: 12,
+  },
+  loadingText: {
+    color: '#1d4ed8',
+    fontWeight: '600',
+  },
 });
