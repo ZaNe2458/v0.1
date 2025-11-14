@@ -18,8 +18,6 @@ function MenuButton({ navigation }) {
 
 export default function DrawerLayout() {
   const pathname = usePathname() || '';
-  const hideHeaderRoutes =
-    pathname.includes('wash/detail') || pathname.includes('cars/add');
 
   // ✅ Route замаас хамаарч гарчгийг өөрчлөх
   const getHeaderTitle = () => {
@@ -33,15 +31,17 @@ export default function DrawerLayout() {
 
   return (
     <Drawer
-      screenOptions={({ navigation }) => ({
-        headerLeft: () => {
-          if (hideHeaderRoutes) return null;
-          return <MenuButton navigation={navigation} />;
-        },
-        headerShown: !hideHeaderRoutes,
-        headerTitle: getHeaderTitle(),
-        headerTransparent: true,
-      })}
+      screenOptions={({ navigation }) => {
+        const hideHeader =
+          pathname.includes('wash/detail') || pathname.includes('cars/add');
+        return {
+          headerLeft: () =>
+            hideHeader ? null : <MenuButton navigation={navigation} />,
+          headerShown: !hideHeader,
+          headerTitle: getHeaderTitle(),
+          headerTransparent: true,
+        };
+      }}
     >
       <Drawer.Screen
         name="index"

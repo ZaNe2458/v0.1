@@ -111,6 +111,51 @@ export default function BookingMapScreen() {
     }
   };
 
+  const selectedService = useMemo(() => {
+    if (!activeServiceId) return null;
+    return (
+      services.find((s) => String(s.id) === String(activeServiceId)) || null
+    );
+  }, [services, activeServiceId]);
+
+  const selectedWorkerInfo = useMemo(() => {
+    if (!selectedWorker) return null;
+    if (typeof selectedWorker === 'object') return selectedWorker;
+    return (
+      employees.find((e) => String(e.id) === String(selectedWorker)) || null
+    );
+  }, [selectedWorker, employees]);
+
+  const selectedCarTypeInfo = useMemo(
+    () => carTypes.find((c) => c.id === selectedCarType) || null,
+    [selectedCarType]
+  );
+
+  const bookingDateStr = `${bookingDate.getFullYear()}-${String(
+    bookingDate.getMonth() + 1
+  ).padStart(2, '0')}-${String(bookingDate.getDate()).padStart(2, '0')}`;
+
+  const bookingSummary = [
+    { label: 'Угаалгын газар', value: selectedCompany?.name ?? 'Сонгогдоогүй' },
+    { label: 'Машины төрөл', value: selectedCarTypeInfo?.name ?? 'Сонгогдоогүй' },
+    {
+      label: 'Үйлчилгээ',
+      value: selectedService
+        ? `${selectedService.name}${
+            selectedService.price ? ` • ${fmtPrice(selectedService.price)}` : ''
+          }`
+        : 'Сонгогдоогүй',
+    },
+    {
+      label: 'Ажилчин',
+      value: selectedWorkerInfo?.fullName ?? 'Сонгогдоогүй',
+    },
+    {
+      label: 'Цаг',
+      value: bookingAt ? `${bookingDateStr} • ${selectedTime}` : 'Сонгогдоогүй',
+    },
+  ];
+
   return (
     <View style={{ flex: 1 }}>
       <StatusBar barStyle="dark-content" />
@@ -295,6 +340,16 @@ export default function BookingMapScreen() {
                       );
                     })}
                   </ScrollView>
+                </View>
+
+                <View style={styles.summaryCard}>
+                  <Text style={styles.summaryTitle}>Захиалгын мэдээлэл</Text>
+                  {bookingSummary.map((item) => (
+                    <View key={item.label} style={styles.summaryRow}>
+                      <Text style={styles.summaryLabel}>{item.label}</Text>
+                      <Text style={styles.summaryValue}>{item.value}</Text>
+                    </View>
+                  ))}
                 </View>
 
                 <TouchableOpacity

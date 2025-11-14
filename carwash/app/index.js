@@ -115,13 +115,14 @@ export default function LoginScreen() {
         return;
       }
 
+      const trimmedUsername = username.trim();
       const newUser = {
-        username: username,
-        email: `${username}@carwash.mn`,
-        password: password,
-        first_name: username,
+        username: trimmedUsername,
+        email: `${trimmedUsername}@carwash.mn`,
+        password,
+        first_name: trimmedUsername,
         last_name: 'Шинэ',
-        phone: phone,
+        phone,
         address: 'Улаанбаатар',
       };
 

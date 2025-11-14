@@ -79,6 +79,38 @@ export const styles = StyleSheet.create({
   slotChipActive: { backgroundColor: '#dbeafe', borderColor: '#2563EB' },
   slotChipText: { color: '#000', fontWeight: '600' },
   slotChipTextActive: { color: '#000', fontWeight: '700' },
+  summaryCard: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 16,
+    padding: 14,
+    marginTop: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  summaryTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#0F172A',
+    marginBottom: 8,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  summaryLabel: {
+    fontSize: 13,
+    color: '#475569',
+  },
+  summaryValue: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#0F172A',
+    flexShrink: 1,
+    textAlign: 'right',
+    marginLeft: 12,
+  },
   bookBtn: {
     backgroundColor: '#007AFF',
     padding: 12,
