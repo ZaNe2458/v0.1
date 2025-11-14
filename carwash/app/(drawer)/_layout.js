@@ -2,7 +2,7 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import { Drawer } from 'expo-router/drawer';
-import { useSegments, usePathname } from 'expo-router';
+import { usePathname } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 function MenuButton({ navigation }) {
@@ -17,15 +17,17 @@ function MenuButton({ navigation }) {
 }
 
 export default function DrawerLayout() {
-  const pathname = usePathname();
+  const pathname = usePathname() || '';
+  const hideHeaderRoutes =
+    pathname.includes('wash/detail') || pathname.includes('cars/add');
 
   // ✅ Route замаас хамаарч гарчгийг өөрчлөх
   const getHeaderTitle = () => {
-    if (pathname?.includes('AddCarScreen')) return 'Машин нэмэх';
-    if (pathname?.includes('cars')) return 'Миний машинууд';
-    if (pathname?.includes('profile')) return 'Хувийн мэдээлэл';
-    if (pathname?.includes('index')) return 'Газрын зураг';
-    if (pathname?.includes('wash')) return 'Угаалгын газрууд';
+    if (pathname.includes('AddCarScreen')) return 'Машин нэмэх';
+    if (pathname.includes('cars')) return 'Миний машинууд';
+    if (pathname.includes('profile')) return 'Хувийн мэдээлэл';
+    if (pathname.includes('index')) return 'Газрын зураг';
+    if (pathname.includes('wash')) return 'Угаалгын газрууд';
     return '';
   };
 
@@ -33,12 +35,10 @@ export default function DrawerLayout() {
     <Drawer
       screenOptions={({ navigation }) => ({
         headerLeft: () => {
-          if (pathname.includes('cars/add') || pathname.includes('wash/detail'))
-            return null;
+          if (hideHeaderRoutes) return null;
           return <MenuButton navigation={navigation} />;
         },
-        headerShown: !pathname.includes('wash/detail'),
-        headerShown: !pathname.includes('cars/add'),
+        headerShown: !hideHeaderRoutes,
         headerTitle: getHeaderTitle(),
         headerTransparent: true,
       })}

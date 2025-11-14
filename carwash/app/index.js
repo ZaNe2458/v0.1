@@ -18,6 +18,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const STORAGE = {
   REMEMBER_ME: 'remember_me',
   AUTH_TOKEN: 'auth_token',
+  REFRESH_TOKEN: 'refresh_token',
   USERNAME: 'username',
   RECENT_USERS: 'recent_usernames',
 };
@@ -63,12 +64,17 @@ export default function LoginScreen() {
 
   const clearRemembered = async () => {
     try {
-      await AsyncStorage.multiRemove([
-        STORAGE.REMEMBER_ME,
-        STORAGE.AUTH_TOKEN,
-        STORAGE.USERNAME,
-      ]);
+      await AsyncStorage.multiRemove([STORAGE.REMEMBER_ME, STORAGE.USERNAME]);
     } catch {}
+  };
+
+  const persistSession = async (accessToken, refreshToken) => {
+    if (!accessToken) return;
+    const entries = [[STORAGE.AUTH_TOKEN, accessToken]];
+    if (refreshToken) {
+      entries.push([STORAGE.REFRESH_TOKEN, refreshToken]);
+    }
+    await AsyncStorage.multiSet(entries);
   };
 
   const handleLogin = async () => {
@@ -80,21 +86,26 @@ export default function LoginScreen() {
     if (isLogin) {
       try {
         const data = await loginUser(username, password);
-        if (data?.data?.access) {
-          if (isRemembered) {
-            await AsyncStorage.multiSet([
-              [STORAGE.REMEMBER_ME, 'true'],
-              [STORAGE.AUTH_TOKEN, data.data.access],
-              [STORAGE.USERNAME, username],
-            ]);
-          } else {
-            await clearRemembered();
-          }
-          await saveRecentUser(username);
-          router.replace('/(drawer)');
-        } else {
+        const accessToken = data?.access ?? data?.data?.access ?? null;
+        const refreshToken = data?.refresh ?? data?.data?.refresh ?? null;
+        if (!accessToken) {
           Alert.alert('Алдаа', 'Нэвтрэхэд асуудал гарлаа.');
+          return;
         }
+
+        await persistSession(accessToken, refreshToken);
+
+        if (isRemembered) {
+          await AsyncStorage.multiSet([
+            [STORAGE.REMEMBER_ME, 'true'],
+            [STORAGE.USERNAME, username],
+          ]);
+        } else {
+          await clearRemembered();
+        }
+
+        await saveRecentUser(username);
+        router.replace('/(drawer)');
       } catch (error) {
         Alert.alert('Нэвтрэхэд алдаа гарлаа', 'Дахин оролдоно уу.');
       }
@@ -108,7 +119,7 @@ export default function LoginScreen() {
         username: username,
         email: `${username}@carwash.mn`,
         password: password,
-        first_name: '${username}',
+        first_name: username,
         last_name: 'Шинэ',
         phone: phone,
         address: 'Улаанбаатар',

@@ -1,5 +1,5 @@
 // carwash/src/hooks/useCompanies.js
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { listCompanies } from '../api/companies';
 
 /**
@@ -53,9 +53,9 @@ export function useCompanies(mapRef) {
   }, [mapRef]);
 
   // автоматаар татах
-  useState(() => {
+  useEffect(() => {
     refetch();
-  }, []);
+  }, [refetch]);
 
   return { companies, loadingCompanies, error, refetch };
 }
