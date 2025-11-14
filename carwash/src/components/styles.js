@@ -115,7 +115,7 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     top: 46,
     left: 60,
-    right: 16,
+    right: 60,
     zIndex: 20,
   },
   searchBox: {
